@@ -8,6 +8,7 @@ import { CreatePostInputDTO, PostDTO } from '../dto'
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
+
   async create (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     const post = await this.db.post.create({
       data: {
@@ -20,7 +21,7 @@ export class PostRepositoryImpl implements PostRepository {
 
   async getAllByDatePaginated (filter: string[],options: CursorPagination): Promise<PostDTO[]> {
     const posts = await this.db.post.findMany({
-      where:{ authorId: { in: filter } },
+      where:{OR:[{author:{isPrivate: false}},{ authorId: { in: filter } }]},
       cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
       skip: options.after ?? options.before ? 1 : undefined,
       take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,

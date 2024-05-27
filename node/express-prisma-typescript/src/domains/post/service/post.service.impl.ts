@@ -4,12 +4,14 @@ import { PostService } from '.'
 import { validate } from 'class-validator'
 import { ForbiddenException, NotFoundException } from '@utils'
 import { CursorPagination } from '@types'
-import { FollowerRepository } from '@domains/follower'
+import { UserRepository } from '@domains/user/repository'
+import { FollowerRepository } from '@domains/follower/repository'
 
 export class PostServiceImpl implements PostService {
   constructor (
     private readonly postRepository: PostRepository,
-     private readonly followRepository: FollowerRepository) {}
+    private readonly followRepository: FollowerRepository,
+    private readonly userRepository: UserRepository) {}
 
   async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     await validate(data)
@@ -24,19 +26,30 @@ export class PostServiceImpl implements PostService {
   }
 
   async getPost (userId: string, postId: string): Promise<PostDTO> {
-    // TODO: validate that the author has public profile or the user follows the author
     const post = await this.postRepository.getById(postId)
     if (!post) throw new NotFoundException('post')
+    const user = await this.userRepository.getById(post.authorId);
+    if(!user) throw new NotFoundException("user");
+    if(user.isPrivate){
+      const follow = await this.followRepository.getFollowId(userId,post.authorId);
+      if(!follow) throw new NotFoundException("follow");
+    }
     return post
   }
 
   async getLatestPosts (userId: string, options: CursorPagination): Promise<PostDTO[]> {
-    const filter = await this.followRepository.getFollowedIds(userId);
-    return await this.postRepository.getAllByDatePaginated(filter ,options)
+    //DEV TODO: tengo la duda de que si llegan a ser duplicado los valores esto tenga que verificarse
+    const usersFilter = await this.followRepository.getFollowedIds(userId);
+    return await this.postRepository.getAllByDatePaginated(usersFilter ,options)
   }
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<PostDTO[]> {
-    // TODO: throw exception when the author has a private profile and the user doesn't follow them
+    const user = await this.userRepository.getById(authorId);
+    if(!user) throw new NotFoundException("user");
+    if(user.isPrivate){
+      const follow = await this.followRepository.getFollowId(userId,authorId);
+      if(!follow) throw new NotFoundException("follow");
+    }
     return await this.postRepository.getByAuthorId(authorId)
   }
 }

@@ -28,9 +28,9 @@ export class PostServiceImpl implements PostService {
   async getPost (userId: string, postId: string): Promise<PostDTO> {
     const post = await this.postRepository.getById(postId)
     if (!post) throw new NotFoundException('post')
-    const user = await this.userRepository.getById(post.authorId);
-    if(!user) throw new NotFoundException("user");
-    if(user.isPrivate){
+    const userPrivacy = await this.userRepository.getPrivacyById(post.authorId);
+    if (userPrivacy == null) throw new NotFoundException('user')
+    if(userPrivacy){
       const follow = await this.followRepository.getFollowId(userId,post.authorId);
       if(!follow) throw new NotFoundException("follow");
     }
@@ -38,15 +38,14 @@ export class PostServiceImpl implements PostService {
   }
 
   async getLatestPosts (userId: string, options: CursorPagination): Promise<PostDTO[]> {
-    //DEV TODO: tengo la duda de que si llegan a ser duplicado los valores esto tenga que verificarse
     const usersFilter = await this.followRepository.getFollowedIds(userId);
     return await this.postRepository.getAllByDatePaginated(usersFilter ,options)
   }
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<PostDTO[]> {
-    const user = await this.userRepository.getById(authorId);
-    if(!user) throw new NotFoundException("user");
-    if(user.isPrivate){
+    const userPrivacy = await this.userRepository.getPrivacyById(authorId);
+    if (userPrivacy == null) throw new NotFoundException('user')
+    if(userPrivacy){
       const follow = await this.followRepository.getFollowId(userId,authorId);
       if(!follow) throw new NotFoundException("follow");
     }

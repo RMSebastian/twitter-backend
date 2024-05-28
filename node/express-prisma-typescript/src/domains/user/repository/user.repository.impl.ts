@@ -21,6 +21,15 @@ export class UserRepositoryImpl implements UserRepository {
     })
     return user ? new UserDTO(user) : null
   }
+  async getPrivacyById(userId: string): Promise<boolean | null>{
+    const user = await this.db.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
+
+    return (user) ? user.isPrivate : null;
+  }
 
   async delete (userId: any): Promise<void> {
     await this.db.user.delete({

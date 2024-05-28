@@ -7,5 +7,6 @@ export interface UserRepository {
   delete: (userId: string) => Promise<void>
   getRecommendedUsersPaginated: (options: OffsetPagination) => Promise<UserDTO[]>
   getById: (userId: string) => Promise<UserDTO | null>
+  getPrivacyById(userId: string): Promise<boolean | null>
   getByEmailOrUsername: (email?: string, username?: string) => Promise<ExtendedUserDTO | null>
 }

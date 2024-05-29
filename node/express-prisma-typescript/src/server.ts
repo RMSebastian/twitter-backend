@@ -6,6 +6,7 @@ import cors from 'cors'
 import { Constants, NodeEnv, Logger } from '@utils'
 import { router } from '@router'
 import { ErrorHandling } from '@utils/errors'
+import { SetupSwagger } from '@utils/swagger'
 
 const app = express()
 
@@ -27,6 +28,8 @@ app.use(
 )
 
 app.use('/api', router)
+
+SetupSwagger(app);
 
 app.use(ErrorHandling)
 

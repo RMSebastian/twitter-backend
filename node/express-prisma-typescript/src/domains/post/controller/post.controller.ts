@@ -42,30 +42,17 @@ new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryIm
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- *   post:
- *     summary: Create a posts
- *     tags: [post]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreatePostInputDTO'
- *     responses:
- *       201:
- *         description: Post created
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/CreatePostInputDTO'
- *       400:
- *         description: Error with the request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ */
+postRouter.get('/', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { limit, before, after } = req.query as Record<string, string>
+
+  const posts = await service.getLatestPosts(userId, { limit: Number(limit), before, after })
+
+  return res.status(HttpStatus.OK).json(posts)
+})
+/**
+ * @swagger
  * /post/{postId}:
  *   get:
  *     summary: Get post by id
@@ -90,21 +77,17 @@ new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryIm
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- *   delete:
- *     summary: Remove the post by id
- *     tags: [post]
- *     parameters:
- *       - in: path
- *         name: postId
- *         schema:
- *           type: string
- *         required: true
- *         description: The post id
- *     responses:
- *       200:
- *         description: The post was deleted
- *       404:
- *         description: The post was not found
+ */
+postRouter.get('/:postId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { postId } = req.params
+
+  const post = await service.getPost(userId, postId)
+
+  return res.status(HttpStatus.OK).json(post)
+})
+/**
+ * @swagger
  * /post/by_user/{userId}:
  *   get:
  *     summary: Get posts by user
@@ -133,24 +116,6 @@ new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryIm
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-postRouter.get('/', async (req: Request, res: Response) => {
-  const { userId } = res.locals.context
-  const { limit, before, after } = req.query as Record<string, string>
-
-  const posts = await service.getLatestPosts(userId, { limit: Number(limit), before, after })
-
-  return res.status(HttpStatus.OK).json(posts)
-})
-
-postRouter.get('/:postId', async (req: Request, res: Response) => {
-  const { userId } = res.locals.context
-  const { postId } = req.params
-
-  const post = await service.getPost(userId, postId)
-
-  return res.status(HttpStatus.OK).json(post)
-})
-
 postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { userId: authorId } = req.params
@@ -159,7 +124,34 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
 
   return res.status(HttpStatus.OK).json(posts)
 })
-
+/**
+ * @swagger
+ * /post/:
+ *   post:
+ *     summary: Create a posts
+ *     tags: [post]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreatePostInputDTO'
+ *     responses:
+ *       201:
+ *         description: Post created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/CreatePostInputDTO'
+ *       400:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const data = req.body
@@ -168,7 +160,25 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
 
   return res.status(HttpStatus.CREATED).json(post)
 })
-
+/**
+ * @swagger
+ * /post/{postId}:
+ *   delete:
+ *     summary: Remove the post by id
+ *     tags: [post]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The post id
+ *     responses:
+ *       200:
+ *         description: The post was deleted
+ *       404:
+ *         description: The post was not found
+ */
 postRouter.delete('/:postId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { postId } = req.params
@@ -177,7 +187,6 @@ postRouter.delete('/:postId', async (req: Request, res: Response) => {
 
   return res.status(HttpStatus.OK).send(`Deleted post ${postId}`)
 })
-
 /**
  * @swagger
  * components:

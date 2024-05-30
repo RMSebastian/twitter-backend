@@ -44,6 +44,16 @@ const service: AuthService = new AuthServiceImpl(new UserRepositoryImpl(db))
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ */
+authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, res: Response) => {
+  const data = req.body
+
+  const token = await service.signup(data)
+
+  return res.status(HttpStatus.CREATED).json(token)
+})
+/**
+ * @swagger
  * /user/login:
  *   post:
  *     summary: Login a user
@@ -70,14 +80,6 @@ const service: AuthService = new AuthServiceImpl(new UserRepositoryImpl(db))
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, res: Response) => {
-  const data = req.body
-
-  const token = await service.signup(data)
-
-  return res.status(HttpStatus.CREATED).json(token)
-})
-
 authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, res: Response) => {
   const data = req.body
 
@@ -85,7 +87,6 @@ authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, re
 
   return res.status(HttpStatus.OK).json(token)
 })
-
 /**
  * @swagger
  * components:
@@ -93,9 +94,15 @@ authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, re
  *    ErrorResponse:
  *      type: object
  *      properties:
- *        type: string
- *        description: Error's description
+ *        type:
+ *          type: string
+ *          description: Error's description
  *      tags: [auth]
+ */
+/**
+ * @swagger
+ * components:
+ *  schemas:
  *    LoginInputDTO:
  *      type: object
  *      required:
@@ -112,7 +119,11 @@ authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, re
  *          type: string
  *          description: User's password
  *      tags: [auth]
- *        
+ */
+/**
+ * @swagger
+ * components:
+ *  schemas:
  *    SignupInputDTO:
  *      type: object
  *      required:

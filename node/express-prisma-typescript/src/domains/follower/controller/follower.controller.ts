@@ -41,8 +41,20 @@ const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryI
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
+ */
+followerRouter.post("/follow/:userId",async (req: Request,res: Response)=>{
+    
+    const{userId} = res.locals.context; // get this user (follower)
+    const{userId: otherUserId} = req.params;
+
+    const follow = await service.follow(userId,otherUserId);
+    
+    return res.status(httpStatus.CREATED).json(follow);
+});
+/**
+ * @swagger
  * /follower/unfollow/{userId}:
- *   delete:
+ *   post:
  *     summary: Unfollow a user
  *     description: Unfollow another user.
  *     tags: [follower]
@@ -67,17 +79,7 @@ const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryI
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-followerRouter.post("/follow/:userId",async (req: Request,res: Response)=>{
-    
-    const{userId} = res.locals.context; // get this user (follower)
-    const{userId: otherUserId} = req.params;
-
-    const follow = await service.follow(userId,otherUserId);
-    
-    return res.status(httpStatus.CREATED).json(follow);
-});
-
-followerRouter.delete("/unfollow/:userId", async(req: Request, res: Response)=>{
+followerRouter.post("/unfollow/:userId", async(req: Request, res: Response)=>{
 
     const{userId} = res.locals.context; // get this user (follower)
     const{userId: otherUserId} = req.params;
@@ -86,7 +88,6 @@ followerRouter.delete("/unfollow/:userId", async(req: Request, res: Response)=>{
     
     return res.status(httpStatus.CREATED).json(follow);
 })
-
 /**
  * @swagger
  * components:

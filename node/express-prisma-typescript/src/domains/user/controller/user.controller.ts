@@ -55,8 +55,7 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db))
  *         content:
  *           application/json:
  *             schema:
- *               items:
- *                 $ref: '#/components/schemas/userDTO'
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       400:
  *         description: Error with the request
  *         content:

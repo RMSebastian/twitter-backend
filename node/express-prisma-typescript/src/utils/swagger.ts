@@ -7,9 +7,9 @@ const definition = {
         title: 'Twitter Backend',
         version: '1.0.0'
     },
-    server:{
+    server:[{
         url: 'http://localhost:8080/api/swagger'
-    }
+    }]
 }
 const options = {
     definition,

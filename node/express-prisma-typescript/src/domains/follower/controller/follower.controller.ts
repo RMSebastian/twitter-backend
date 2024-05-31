@@ -23,12 +23,13 @@ const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryI
  *     summary: Follow a user
  *     description: Follow another user.
  *     tags: [follower]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/FollowInputDTO'
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user id
  *     responses:
  *       2XX:
  *         description: User followed successfully
@@ -62,12 +63,13 @@ followerRouter.post("/follow/:userId",async (req: Request,res: Response)=>{
  *     summary: Unfollow a user
  *     description: Unfollow another user.
  *     tags: [follower]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/FollowInputDTO'
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user id
  *     responses:
  *       2XX:
  *         description: User unfollowed successfully
@@ -99,13 +101,9 @@ followerRouter.post("/unfollow/:userId", async(req: Request, res: Response)=>{
  *    FollowDTO:
  *      type: object
  *      required:
- *        - id
  *        - followerId
  *        - followedId
  *      properties:
- *        id:
- *          type: string
- *          description: User's id
  *        followerId:
  *          type: string
  *          description: User's follower id
@@ -113,4 +111,22 @@ followerRouter.post("/unfollow/:userId", async(req: Request, res: Response)=>{
  *          type: string
  *          description: User's followed id
  *      tags: [follower]
+ */
+/**
+ * 
+ *    CreatePostInputDTO:
+ *      type: object
+ *      required:
+ *        - content
+ *        - images
+ *      properties:
+ *        content:
+ *          type: string
+ *          description: Post content
+ *        images:
+ *          type: array
+ *          description: Post images
+ *          items:
+ *            type: string
+ *      tags: [post] 
  */

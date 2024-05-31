@@ -19,7 +19,7 @@ const service: AuthService = new AuthServiceImpl(new UserRepositoryImpl(db))
  * tags:
  *   - name: auth
  *     description: auth endpoints 
- * /user/signup:
+ * /api/auth/signup:
  *   post:
  *     summary: Signup a new user
  *     description: Create a user, comes with a token.
@@ -31,14 +31,14 @@ const service: AuthService = new AuthServiceImpl(new UserRepositoryImpl(db))
  *           schema:
  *             $ref: '#/components/schemas/SignupInputDTO'
  *     responses:
- *       201:
+ *       2XX:
  *         description: User Created, comes with a token
  *         content:
  *           application/json:
  *             schema:
  *               type: string
  *               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:
@@ -54,7 +54,7 @@ authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, 
 })
 /**
  * @swagger
- * /user/login:
+ * /api/auth/login:
  *   post:
  *     summary: Login a user
  *     description: Login a user, comes with a token.
@@ -66,14 +66,14 @@ authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, 
  *           schema:
  *             $ref: '#/components/schemas/SignupInputDTO'
  *     responses:
- *       201:
+ *       2XX:
  *         description: User Logged, comes with a token
  *         content:
  *           application/json:
  *             schema:
  *               type: string
  *               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:
@@ -87,6 +87,15 @@ authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, re
 
   return res.status(HttpStatus.OK).json(token)
 })
+/**
+ * @swagger
+ * components:
+ *  securitySchemes:
+ *    apiKey:
+ *      type: apiKey
+ *      name: Authorization
+ *      in: header
+ */
 /**
  * @swagger
  * components:

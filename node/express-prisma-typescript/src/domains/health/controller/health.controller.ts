@@ -9,19 +9,19 @@ export const healthRouter = Router()
  * tags:
  *  name: health
  *  description: health endpoints
- * /health/:
+ * /api/health/:
  *   get:
  *     summary: Get server heatlh
  *     tags: [health]
  *     responses:
- *       201:
+ *       2XX:
  *         description: Got health status
  *         content:
  *           application/json:
  *             schema:
  *               type: string
  *               example: good
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:

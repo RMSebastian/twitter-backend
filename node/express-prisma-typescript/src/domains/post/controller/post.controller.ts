@@ -23,12 +23,14 @@ new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryIm
  * tags:
  *  name: post
  *  description: post endpoints
- * /post/:
+ * /api/post/:
  *   get:
+ *     security:
+ *         - apiKey: []
  *     summary: Get posts
  *     tags: [post]
  *     responses:
- *       201:
+ *       2XX:
  *         description: Got posts
  *         content:
  *           application/json:
@@ -36,7 +38,7 @@ new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryIm
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/PostDTO'
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:
@@ -53,8 +55,10 @@ postRouter.get('/', async (req: Request, res: Response) => {
 })
 /**
  * @swagger
- * /post/{postId}:
+ * /api/post/{postId}:
  *   get:
+ *     security:
+ *         - apiKey: []
  *     summary: Get post by id
  *     tags: [post]
  *     parameters:
@@ -65,13 +69,13 @@ postRouter.get('/', async (req: Request, res: Response) => {
  *         required: true
  *         description: The post id
  *     responses:
- *       201:
+ *       2XX:
  *         description: Got post by id
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PostDTO'
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:
@@ -88,8 +92,10 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
 })
 /**
  * @swagger
- * /post/by_user/{userId}:
+ * /api/post/by_user/{userId}:
  *   get:
+ *     security:
+ *         - apiKey: []
  *     summary: Get posts by user
  *     description: Retrieve posts created by a specific user.
  *     tags: [post]
@@ -101,7 +107,7 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
  *         required: true
  *         description: ID of the user whose posts are to be retrieved.
  *     responses:
- *       200:
+ *       2XX:
  *         description: A list of posts created by the specified user.
  *         content:
  *           application/json:
@@ -109,7 +115,7 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/PostDTO'
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:
@@ -126,8 +132,10 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
 })
 /**
  * @swagger
- * /post/:
+ * /api/post/:
  *   post:
+ *     security:
+ *         - apiKey: []
  *     summary: Create a posts
  *     tags: [post]
  *     requestBody:
@@ -137,7 +145,7 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
  *           schema:
  *             $ref: '#/components/schemas/CreatePostInputDTO'
  *     responses:
- *       201:
+ *       2XX:
  *         description: Post created
  *         content:
  *           application/json:
@@ -145,7 +153,7 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/CreatePostInputDTO'
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:
@@ -162,8 +170,10 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
 })
 /**
  * @swagger
- * /post/{postId}:
+ * /api/post/{postId}:
  *   delete:
+ *     security:
+ *         - apiKey: []
  *     summary: Remove the post by id
  *     tags: [post]
  *     parameters:
@@ -174,9 +184,9 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
  *         required: true
  *         description: The post id
  *     responses:
- *       200:
+ *       2XX:
  *         description: The post was deleted
- *       404:
+ *       4XX:
  *         description: The post was not found
  */
 postRouter.delete('/:postId', async (req: Request, res: Response) => {

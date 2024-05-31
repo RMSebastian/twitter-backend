@@ -16,8 +16,10 @@ const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryI
  * tags:
  *     name: follower
  *     description: follower endpoints 
- * /follower/follow/{userId}:
+ * /api/follower/follow/{userId}:
  *   post:
+ *     security:
+ *         - apiKey: []
  *     summary: Follow a user
  *     description: Follow another user.
  *     tags: [follower]
@@ -28,14 +30,14 @@ const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryI
  *           schema:
  *             $ref: '#/components/schemas/FollowInputDTO'
  *     responses:
- *       201:
+ *       2XX:
  *         description: User followed successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: string
  *               example: "User followed successfully"
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:
@@ -53,8 +55,10 @@ followerRouter.post("/follow/:userId",async (req: Request,res: Response)=>{
 });
 /**
  * @swagger
- * /follower/unfollow/{userId}:
+ * /api/follower/unfollow/{userId}:
  *   post:
+ *     security:
+ *         - apiKey: []
  *     summary: Unfollow a user
  *     description: Unfollow another user.
  *     tags: [follower]
@@ -65,14 +69,14 @@ followerRouter.post("/follow/:userId",async (req: Request,res: Response)=>{
  *           schema:
  *             $ref: '#/components/schemas/FollowInputDTO'
  *     responses:
- *       201:
+ *       2XX:
  *         description: User unfollowed successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: string
  *               example: "User unfollowed successfully"
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:

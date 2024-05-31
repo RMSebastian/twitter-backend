@@ -17,13 +17,15 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db));
  * tags:
  *  name: user
  *  description: user endpoints
- * /user/:
+ * /api/user/:
  *  get:
+ *    security:
+ *        - apiKey: []
  *    summary: "Get a list of all users"
  *    tags: [user]
  *    description: get a list of all user recommendations paginated according the user that sends it
  *    responses:
- *        201:
+ *        2XX:
  *            description: returned the list of user recommendations
  *            content:
  *                application/json:
@@ -31,14 +33,6 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db));
  *                        type: array
  *                        items:
  *                            $ref: '#/components/schemas/UserDTO'
- *    security:
- *        - withAuth: []
- * components:
- *   securitySchemes:
- *       bearerAuth:
- *          type: http
- *          scheme: bearer
- *          bearerFormat: JWT
  */
 userRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
@@ -50,18 +44,20 @@ userRouter.get('/', async (req: Request, res: Response) => {
 })
 /**
  * @swagger
- * /user/me:
+ * /api/user/me:
  *   get:
+ *     security:
+ *         - apiKey: []
  *     summary: Get my user info
  *     tags: [user]
  *     responses:
- *       201:
+ *       2XX:
  *         description: Got my user info
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
- *       400:
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:
@@ -77,8 +73,10 @@ userRouter.get('/me', async (req: Request, res: Response) => {
 })
 /**
  * @swagger
- * /user/{userId}:
+ * /api/user/{userId}:
  *   get:
+ *     security:
+ *         - apiKey: []
  *     summary: "Get user by id"
  *     tags: [user]
  *     parameters:
@@ -89,13 +87,13 @@ userRouter.get('/me', async (req: Request, res: Response) => {
  *         required: true
  *         description: The user id
  *     responses:
- *       '201':
+ *       2XX:
  *         description: Got user by id
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/UserDTO'
- *       '400':
+ *       4XX:
  *         description: Error with the request
  *         content:
  *           application/json:
@@ -111,14 +109,16 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
 })
 /**
  * @swagger
- * /user/:
+ * /api/user/:
  *   delete:
+ *     security:
+ *         - apiKey: []
  *     summary: Remove current users
  *     tags: [user]
  *     responses:
- *       200:
+ *       2XX:
  *         description: The post was deleted
- *       404:
+ *       4XX:
  *         description: The post was not found
  */
 userRouter.delete('/', async (req: Request, res: Response) => {
@@ -126,7 +126,7 @@ userRouter.delete('/', async (req: Request, res: Response) => {
 
   await service.deleteUser(userId)
 
-  return res.status(HttpStatus.OK)
+  return res.status(HttpStatus.OK).json({message: "User Deleted"})
 })
 /**
  * @swagger

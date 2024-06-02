@@ -229,6 +229,12 @@ postRouter.delete('/:postId', async (req: Request, res: Response) => {
  *          format: date
  *          description: Post init date
  *      tags: [post] 
+ */
+/**  
+/**
+ * @swagger
+ * components:
+ *  schemas:
  *    CreatePostInputDTO:
  *      type: object
  *      required:

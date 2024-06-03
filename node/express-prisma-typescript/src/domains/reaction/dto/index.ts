@@ -1,4 +1,4 @@
-import { ReactionType } from '@enums';
+import { ReactionType } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator'
 export class CreateReactionInputDTO{
     @IsEnum(ReactionType)

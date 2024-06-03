@@ -1,4 +1,4 @@
-import { ReactionType } from "@enums";
+import { ReactionType } from "@prisma/client";
 import { CreateReactionInputDTO, ReactionDTO} from "../dto";
 
 export interface ReactionService{

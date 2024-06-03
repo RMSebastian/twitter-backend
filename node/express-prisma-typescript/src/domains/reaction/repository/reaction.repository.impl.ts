@@ -1,17 +1,48 @@
-import { PrismaClient, ReactionType } from "@prisma/client";
+import { PrismaClient, ReactionType} from "@prisma/client";
 import { ReactionRepository } from ".";
-import { ReactionDTO } from "../dto";
+import { CreateReactionInputDTO, ReactionDTO } from "../dto";
 
 export class ReactionRepositoryImpl implements ReactionRepository{
     constructor(private readonly db: PrismaClient){}
-    async create(userId: string, postId: string): Promise<ReactionDTO> {
-        throw new Error("Method not implemented.");
+
+    async create(userId: string, postId: string, data: CreateReactionInputDTO): Promise<ReactionDTO> {
+        const reaction = await this.db.reaction.create({
+            data:{
+                userId: userId,
+                postId: postId,
+                ...data
+            }
+        });
+
+        return new ReactionDTO(reaction)
     }
-    async delete(userId: string, postId: string): Promise<void> {
-        throw new Error("Method not implemented.");
+    async delete(reactionId: string): Promise<void> {
+        await this.db.reaction.delete({
+            where:{
+                id: reactionId
+            }
+        });
     }
-    async getByUserId(userId: string, filter: ReactionType | null): Promise<ReactionDTO[]> {
-        throw new Error("Method not implemented.");
+    async getReactionId(userId: string,postId: string, data: CreateReactionInputDTO): Promise<ReactionDTO | null> {
+        const reaction = await this.db.reaction.findFirst({
+            where:{
+                userId: userId,
+                postId: postId,
+                ...data
+            }
+        });
+        return (reaction) ? new ReactionDTO (reaction): null;
+    }
+    async getAllByUserId(userId: string, filter: ReactionType | null): Promise<ReactionDTO[]> {
+        const reaction: ReactionDTO[] = await this.db.reaction.findMany({
+            where:{
+                AND:[
+                    {id: userId},
+                    {type: (filter != null) filter: //rescatar todo}
+
+                ]
+            }
+        });
     }
 
 

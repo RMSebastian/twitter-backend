@@ -23,7 +23,7 @@ export class ReactionRepositoryImpl implements ReactionRepository{
             }
         });
     }
-    async getReactionId(userId: string,postId: string, data: CreateReactionInputDTO): Promise<ReactionDTO | null> {
+    async getReactionId(userId: string,postId: string, data: CreateReactionInputDTO): Promise<string | null> {
         const reaction = await this.db.reaction.findFirst({
             where:{
                 userId: userId,
@@ -31,19 +31,17 @@ export class ReactionRepositoryImpl implements ReactionRepository{
                 ...data
             }
         });
-        return (reaction) ? new ReactionDTO (reaction): null;
+        return (reaction) ? reaction.id: null;
     }
     async getAllByUserId(userId: string, filter: ReactionType | null): Promise<ReactionDTO[]> {
-        const reaction: ReactionDTO[] = await this.db.reaction.findMany({
-            where:{
-                AND:[
-                    {id: userId},
-                    {type: (filter != null) filter: //rescatar todo}
 
-                ]
+        const reaction: ReactionDTO[] = await this.db.reaction.findMany({
+            where: {
+                userId: userId,
+                ...(filter !== null && { type: filter })
             }
         });
+    
+        return reaction.map(reaction => new ReactionDTO(reaction));
     }
-
-
 }

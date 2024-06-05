@@ -171,6 +171,52 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
 /**
  * @swagger
  * /api/post/{postId}:
+ *   post:
+ *     security:
+ *         - apiKey: []
+ *     summary: Create a comment
+ *     tags: [post]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreatePostInputDTO'
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The post id
+ *     responses:
+ *       2XX:
+ *         description: Comment created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/PostDTO'
+ *       4XX:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+postRouter.post('/:postId',BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { postId } = req.params
+  const data = req.body
+  
+  const post = await service.createComment(userId,postId, data);
+
+  return res.status(HttpStatus.OK).json(post)
+})
+/**
+ * @swagger
+ * /api/post/{postId}:
  *   delete:
  *     security:
  *         - apiKey: []

@@ -53,8 +53,12 @@ model Post {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // Primary Key
 
   authorId String   @db.Uuid // Foreign Key
+  parentId String?  @db.Uuid
   content  String   @db.VarChar(240) // Limit the content to 240 characters
   images   String[]
+
+  parent Post? @relation(name: "Relation",fields: [parentId], references: [id], onDelete: Cascade)
+  comment Post[] @relation(name: "Relation")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt

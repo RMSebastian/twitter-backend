@@ -3,10 +3,11 @@ import HttpStatus from 'http-status'
 // express-async-errors is a module that handles async errors in express, don't forget import it in your new controllers
 import 'express-async-errors'
 
-import { db, BodyValidation } from '@utils'
+import { db, BodyValidation, ActionValidation } from '@utils'
 import { CreateReactionInputDTO } from '../dto';
 import { ReactionService, ReactionServiceImpl } from '../service';
 import { ReactionRepositoryImpl } from '../repository';
+import { ReactionType } from '@prisma/client';
 
 export const reactionRouter = Router();
 
@@ -85,7 +86,51 @@ reactionRouter.delete("/:postId", BodyValidation(CreateReactionInputDTO),async (
 
     return res.status(HttpStatus.OK).send(`Deleted reaction ${postId}`)
 });
-
+/**
+ * @swagger
+ * /api/reaction/{userId}/{action}:
+ *   get:
+ *     security:
+ *         - apiKey: []
+ *     summary: Look for post with certain reactions
+ *     tags: [reaction]
+ *     parameters:
+ *       - in: path
+ *         name: action
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The action to gain
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user id
+ *     responses:
+ *       2XX:
+ *         description: Got posts by action selected
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/PostDTO'
+ *       4XX:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+reactionRouter.get('/:action/:userId',ActionValidation, async (req: Request, res: Response) => {
+    const { userId } = res.locals.context
+    const { userId: authorId, action } = req.params
+  
+    const posts = await service.getReactionsWithFilter(userId,action as ReactionType)
+  
+    return res.status(HttpStatus.OK).json(posts)
+  })
 /**
  * @swagger
  * components:

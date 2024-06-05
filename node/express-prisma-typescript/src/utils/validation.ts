@@ -1,8 +1,9 @@
 import { validate } from 'class-validator'
 import { NextFunction, Request, Response } from 'express'
-import { ValidationException } from './errors'
+import { NotFoundException, ValidationException } from './errors'
 import { plainToInstance } from 'class-transformer'
 import { ClassType } from '@types'
+import { ReactionType } from '@prisma/client'
 
 export function BodyValidation<T> (target: ClassType<T>) {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -15,5 +16,14 @@ export function BodyValidation<T> (target: ClassType<T>) {
     if (errors.length > 0) { throw new ValidationException(errors.map(error => ({ ...error, target: undefined, value: undefined }))) }
 
     next()
+  }
+}
+export async function ActionValidation(req: Request, res: Response, next: NextFunction){
+  const {action} = req.params;
+
+  if(Object.values(ReactionType).includes(action as ReactionType)){
+    next()
+  }else{
+    throw new NotFoundException(`${action}`)
   }
 }

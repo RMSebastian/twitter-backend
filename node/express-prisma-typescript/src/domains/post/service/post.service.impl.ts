@@ -13,11 +13,7 @@ export class PostServiceImpl implements PostService {
     private readonly followRepository: FollowerRepository,
     private readonly userRepository: UserRepository) {}
 
-  async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
-    await validate(data)
-    return await this.postRepository.create(userId, data, null)
-  }
-  async createComment(userId: string, postId: string, data: CreatePostInputDTO): Promise<PostDTO>{
+  async createPost (userId: string,postId: string | null, data: CreatePostInputDTO): Promise<PostDTO> {
     await validate(data)
     return await this.postRepository.create(userId, data, postId)
   }

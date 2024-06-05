@@ -3,7 +3,7 @@ import HttpStatus from 'http-status'
 // express-async-errors is a module that handles async errors in express, don't forget import it in your new controllers
 import 'express-async-errors'
 
-import { db, BodyValidation } from '@utils'
+import { db, BodyValidation, ActionValidation } from '@utils'
 
 import { PostRepositoryImpl } from '../repository'
 import { PostService, PostServiceImpl } from '../service'
@@ -164,7 +164,7 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
   const { userId } = res.locals.context
   const data = req.body
 
-  const post = await service.createPost(userId, data)
+  const post = await service.createPost(userId, null, data)
 
   return res.status(HttpStatus.CREATED).json(post)
 })
@@ -209,11 +209,12 @@ postRouter.post('/:postId',BodyValidation(CreatePostInputDTO), async (req: Reque
   const { userId } = res.locals.context
   const { postId } = req.params
   const data = req.body
-  
-  const post = await service.createComment(userId,postId, data);
+
+  const post = await service.createPost(userId,postId, data);
 
   return res.status(HttpStatus.OK).json(post)
 })
+/**
 /**
  * @swagger
  * /api/post/{postId}:

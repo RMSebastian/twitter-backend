@@ -13,9 +13,9 @@ export class PostServiceImpl implements PostService {
     private readonly followRepository: FollowerRepository,
     private readonly userRepository: UserRepository) {}
 
-  async createPost (userId: string,postId: string | null, data: CreatePostInputDTO): Promise<PostDTO> {
+  async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     await validate(data)
-    return await this.postRepository.create(userId, data, postId)
+    return await this.postRepository.create(userId, data)
   }
   async deletePost (userId: string, postId: string): Promise<void> {
     const post = await this.postRepository.getById(postId)

@@ -3,7 +3,7 @@ import HttpStatus from 'http-status'
 // express-async-errors is a module that handles async errors in express, don't forget import it in your new controllers
 import 'express-async-errors'
 
-import { db, BodyValidation, ActionValidation } from '@utils'
+import { db, BodyValidation,  } from '@utils'
 
 import { PostRepositoryImpl } from '../repository'
 import { PostService, PostServiceImpl } from '../service'
@@ -164,57 +164,10 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
   const { userId } = res.locals.context
   const data = req.body
 
-  const post = await service.createPost(userId, null, data)
+  const post = await service.createPost(userId, data)
 
   return res.status(HttpStatus.CREATED).json(post)
 })
-/**
- * @swagger
- * /api/post/{postId}:
- *   post:
- *     security:
- *         - apiKey: []
- *     summary: Create a comment
- *     tags: [post]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreatePostInputDTO'
- *     parameters:
- *       - in: path
- *         name: postId
- *         schema:
- *           type: string
- *         required: true
- *         description: The post id
- *     responses:
- *       2XX:
- *         description: Comment created
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/PostDTO'
- *       4XX:
- *         description: Error with the request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-postRouter.post('/:postId',BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
-  const { userId } = res.locals.context
-  const { postId } = req.params
-  const data = req.body
-
-  const post = await service.createPost(userId,postId, data);
-
-  return res.status(HttpStatus.OK).json(post)
-})
-/**
 /**
  * @swagger
  * /api/post/{postId}:

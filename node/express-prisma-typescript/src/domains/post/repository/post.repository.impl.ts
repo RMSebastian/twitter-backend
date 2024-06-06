@@ -9,11 +9,10 @@ export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
 
-  async create (userId: string, data: CreatePostInputDTO, postId: string | null): Promise<PostDTO> {
+  async create (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     const post = await this.db.post.create({
       data: {
         authorId: userId,
-        ...(postId !== null && { parentId: postId }),
         ...data
       }
     })

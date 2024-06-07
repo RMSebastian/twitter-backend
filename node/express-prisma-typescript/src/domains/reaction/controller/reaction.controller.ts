@@ -88,7 +88,7 @@ reactionRouter.delete("/:postId", BodyValidation(CreateReactionInputDTO),async (
 });
 /**
  * @swagger
- * /api/reaction/{userId}/{action}:
+ * /api/reaction/{action}/{userId}:
  *   get:
  *     security:
  *         - apiKey: []
@@ -96,17 +96,17 @@ reactionRouter.delete("/:postId", BodyValidation(CreateReactionInputDTO),async (
  *     tags: [reaction]
  *     parameters:
  *       - in: path
- *         name: action
- *         schema:
- *           type: string
- *         required: true
- *         description: The action to gain
- *       - in: path
  *         name: userId
  *         schema:
  *           type: string
  *         required: true
  *         description: The user id
+ *       - in: path
+ *         name: action
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The action to gain
  *     responses:
  *       2XX:
  *         description: Got posts by action selected

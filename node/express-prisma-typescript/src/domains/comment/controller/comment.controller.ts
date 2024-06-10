@@ -16,10 +16,44 @@ const service: CommentService = new CommentServiceImpl(
 );
 /**
  * @swagger
+ * /api/comment/me:
+ *   get:
+ *     security:
+ *         - apiKey: []
+ *     summary: Get comments by user id
+ *     description: Retrieve comments created by a specific user.
+ *     tags: [comment]
+ *     responses:
+ *       2XX:
+ *         description: A list of comment created by the specified user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/PostDTO'
+ *       4XX:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+  commentRouter.get('/me', async (req: Request, res: Response) => {
+    const { userId } = res.locals.context
+    
+    const { limit, before, after } = req.query as Record<string, string>
+    
+    const posts = await service.getLatestComments(userId, {limit: Number(limit),before,after})
+  
+    return res.status(HttpStatus.OK).json(posts)
+  })
+/**
+ * @swagger
  * tags:
  *  name: comment
  *  description: comment endpoints
- * /api/comment/{postId}:
+ * /api/comment/by_post/{postId}:
  *   get:
  *     security:
  *         - apiKey: []
@@ -48,50 +82,17 @@ const service: CommentService = new CommentServiceImpl(
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-commentRouter.get('/:postId', async (req: Request, res: Response) => {
+commentRouter.get('/by_post/:postId', async (req: Request, res: Response) => {
     const { postId } = req.params
   
     const comments = await service.getCommentsByPostId(postId)
   
     return res.status(HttpStatus.OK).json(comments)
   })
-  /**
- * @swagger
- * /api/comment/me:
- *   get:
- *     security:
- *         - apiKey: []
- *     summary: Get comments by user id
- *     description: Retrieve comments created by a specific user.
- *     tags: [comment]
- *     responses:
- *       2XX:
- *         description: A list of comment created by the specified user.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/PostDTO'
- *       4XX:
- *         description: Error with the request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-commentRouter.get('/me', async (req: Request, res: Response) => {
-    const { userId } = res.locals.context
-    
-    const { limit, before, after } = req.query as Record<string, string>
-    
-    const posts = await service.getLatestComments(userId, {limit: Number(limit),before,after})
-  
-    return res.status(HttpStatus.OK).json(posts)
-  })
+
 /**
  * @swagger
- * /api/comment/{userId}:
+ * /api/comment/by_user/{userId}:
  *   get:
  *     security:
  *         - apiKey: []
@@ -121,7 +122,7 @@ commentRouter.get('/me', async (req: Request, res: Response) => {
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-commentRouter.get('/:userId', async (req: Request, res: Response) => {
+commentRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
     const { userId } = req.params
     
     const { limit, before, after } = req.query as Record<string, string>

@@ -4,6 +4,7 @@ import { CursorPagination } from '@types'
 
 import { PostRepository } from '.'
 import { CreatePostInputDTO, PostDTO } from '../dto'
+import { GetObjectFromS3 } from '@utils/s3.aws'
 
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
@@ -16,6 +17,12 @@ export class PostRepositoryImpl implements PostRepository {
         ...data
       }
     })
+
+    //Check later for improvements
+    if(post.images.length != 0){
+      await post.images.map((p)=> GetObjectFromS3(p));
+    }
+    
     return new PostDTO(post)
   }
 
@@ -34,7 +41,11 @@ export class PostRepositoryImpl implements PostRepository {
         }
       ]
     })
-    return posts.map(post => new PostDTO(post))
+    const postDTO = posts.map(post => new PostDTO(post));
+
+    await postDTO.forEach(post =>{if(post.images.length != 0)post.images.map(GetObjectFromS3);} )
+    
+    return postDTO;
   }
 
   async delete (postId: string): Promise<void> {
@@ -51,6 +62,11 @@ export class PostRepositoryImpl implements PostRepository {
         id: postId
       }
     })
+
+    if(post != null && post.images.length != 0){
+      await post.images.map((p)=> GetObjectFromS3(p));
+    }
+
     return (post != null) ? new PostDTO(post) : null
   }
 
@@ -60,6 +76,10 @@ export class PostRepositoryImpl implements PostRepository {
         authorId
       }
     })
-    return posts.map(post => new PostDTO(post))
+    const postDTO = posts.map(post => new PostDTO(post));
+
+    await postDTO.forEach(post =>{if(post.images.length != 0)post.images.map(GetObjectFromS3);} )
+    
+    return postDTO;
   }
 }

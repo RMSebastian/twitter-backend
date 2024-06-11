@@ -3,10 +3,11 @@ import HttpStatus from 'http-status'
 // express-async-errors is a module that handles async errors in express, don't forget import it in your new controllers
 import 'express-async-errors'
 
-import { db } from '@utils'
+import { BodyValidation, db } from '@utils'
 
 import { UserRepositoryImpl } from '../repository'
 import { UserService, UserServiceImpl } from '../service'
+import { UpdateUserInputDTO } from '../dto'
 
 export const userRouter = Router()
 
@@ -127,6 +128,14 @@ userRouter.delete('/', async (req: Request, res: Response) => {
   await service.deleteUser(userId)
 
   return res.status(HttpStatus.OK).json({message: "User Deleted"})
+})
+userRouter.post('/update/:userId',BodyValidation(UpdateUserInputDTO), async (req: Request, res: Response) =>{
+  const {userId: otherUserId} = req.params;
+  const data = req.body;
+
+  const user = await service.updateUser(otherUserId, data)
+
+  return res.status(HttpStatus.OK).json(user);
 })
 /**
  * @swagger

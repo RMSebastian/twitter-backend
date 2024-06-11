@@ -1,15 +1,32 @@
 import { SignupInputDTO } from '@domains/auth/dto'
 import { PrismaClient } from '@prisma/client'
 import { OffsetPagination } from '@types'
-import { ExtendedUserDTO, UserDTO } from '../dto'
+import { ExtendedUserDTO, UpdateUserInputDTO, UserDTO } from '../dto'
 import { UserRepository } from './user.repository'
+import { GetObjectFromS3 } from '@utils/s3.aws'
 
 export class UserRepositoryImpl implements UserRepository {
   constructor (private readonly db: PrismaClient) {}
 
-  async create (data: SignupInputDTO): Promise<UserDTO> {
-    return await this.db.user.create({
+  async create (data: SignupInputDTO): Promise<UserDTO> {    
+    const user = await this.db.user.create({
       data
+    })
+
+    const userDTO = new UserDTO(user);
+
+    userDTO.image = GetObjectFromS3(user.image)
+
+    return 
+  }
+  async update(userId: string,data: UpdateUserInputDTO): Promise<UserDTO>{
+    return await this.db.user.update({
+      where:{
+        id: userId
+      },
+      data:{
+        ...data
+      }
     }).then(user => new UserDTO(user))
   }
 

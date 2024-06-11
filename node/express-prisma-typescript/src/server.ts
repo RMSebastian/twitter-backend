@@ -7,7 +7,6 @@ import { Constants, NodeEnv, Logger } from '@utils'
 import { router } from '@router'
 import { ErrorHandling } from '@utils/errors'
 import { SetupSwagger } from '@utils/swagger'
-import { GetObjectFromS3 } from '@utils/s3.aws'
 
 const app = express()
 
@@ -36,6 +35,4 @@ app.use(ErrorHandling)
 
 app.listen(Constants.PORT, () => {
   Logger.info(`Server listening on port ${Constants.PORT}`)
-});
-
-GetObjectFromS3("profilePicture/testPicture.jpg").catch((err)=> console.log(err));
+})

@@ -9,17 +9,15 @@ AWS.config.update({
 
 const s3 = new AWS.S3();
 
-export async function GetObjectFromS3(key: string): Promise<string>{
+export async function GetObjectFromS3(key: string){
     try{
         const url = await s3.getSignedUrlPromise("getObject",{
             Bucket: process.env.BUCKET_NAME,
             Key: key,
-            Expires: 60,
+            Expire: 60,
         });
-
-        return url
     }catch(err){
-        throw err;
+        throw new NotFoundException("url");
     }
 
 }

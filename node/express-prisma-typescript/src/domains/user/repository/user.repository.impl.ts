@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client'
 import { OffsetPagination } from '@types'
 import { ExtendedUserDTO, UpdateUserInputDTO, UserDTO } from '../dto'
 import { UserRepository } from './user.repository'
-import { GetObjectFromS3 } from '@utils/s3.aws'
 
 export class UserRepositoryImpl implements UserRepository {
   constructor (private readonly db: PrismaClient) {}
@@ -13,11 +12,7 @@ export class UserRepositoryImpl implements UserRepository {
       data
     })
 
-    const userDTO = new UserDTO(user);
-
-    userDTO.image = GetObjectFromS3(user.image)
-
-    return 
+    return new UserDTO(user);
   }
   async update(userId: string,data: UpdateUserInputDTO): Promise<UserDTO>{
     return await this.db.user.update({
@@ -42,6 +37,7 @@ export class UserRepositoryImpl implements UserRepository {
     const user = await this.db.user.findUnique({
       where: {
         id: userId
+        
       }
     })
 

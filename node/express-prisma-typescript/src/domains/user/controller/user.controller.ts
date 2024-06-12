@@ -129,6 +129,41 @@ userRouter.delete('/', async (req: Request, res: Response) => {
 
   return res.status(HttpStatus.OK).json({message: "User Deleted"})
 })
+/**
+ * @swagger
+ * /api/user/update/{userId}:
+ *   post:
+ *     security:
+ *         - apiKey: []
+ *     summary: update a user
+ *     tags: [user]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateUserInputDTO'
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user id
+ *     responses:
+ *       2XX:
+ *         description: Got user by id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserDTO'
+ *       4XX:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 userRouter.post('/update/:userId',BodyValidation(UpdateUserInputDTO), async (req: Request, res: Response) =>{
   const {userId: otherUserId} = req.params;
   const data = req.body;
@@ -158,5 +193,24 @@ userRouter.post('/update/:userId',BodyValidation(UpdateUserInputDTO), async (req
  *          type: string
  *          format: date
  *          description: User's creation date
+ *      tags: [user]
+ */
+
+/**
+ * @swagger
+ * components:
+ *  schemas:  
+ *    UpdateUserInputDTO:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *          description: User's name
+ *        image:
+ *          type: string
+ *          description: User's image
+ *        biography:
+ *          type: string
+ *          description: User's bipgraphy
  *      tags: [user]
  */

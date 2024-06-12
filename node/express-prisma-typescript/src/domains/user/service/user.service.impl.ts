@@ -1,6 +1,6 @@
 import { NotFoundException } from '@utils/errors'
 import { OffsetPagination } from 'types'
-import { UpdateUserInputDTO, UserDTO } from '../dto'
+import { UpdateUserInputDTO, UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
 import { GetObjectFromS3, PutObjectFromS3 } from '@utils/s3.aws'
@@ -8,11 +8,11 @@ import { GetObjectFromS3, PutObjectFromS3 } from '@utils/s3.aws'
 export class UserServiceImpl implements UserService {
   constructor (private readonly repository: UserRepository) {}
 
-  async getUser (userId: any): Promise<UserDTO> {
+  async getUser (userId: any): Promise<UserViewDTO> {
     const user = await this.repository.getById(userId)
     if (!user) throw new NotFoundException('user')
     const userWithUrl = await this.getUrl(user);
-    return userWithUrl;
+    return new UserViewDTO(userWithUrl);
   }
   async updateUser(userId: string, data: UpdateUserInputDTO): Promise<UserDTO>{
     if(data.image)data.image = `user/${userId}/${Date.now()}/${data.image}`; //
@@ -22,11 +22,11 @@ export class UserServiceImpl implements UserService {
     return userWithUrl;
   }
 
-  async getUserRecommendations (userId: any, options: OffsetPagination): Promise<UserDTO[]> {
+  async getUserRecommendations (userId: any, options: OffsetPagination): Promise<UserViewDTO[]> {
     // TODO: make this return only users followed by users the original user follows
     const users = await this.repository.getRecommendedUsersPaginated(options);
     const userWithUrl = await this.getUrlsArray(users);
-    return userWithUrl
+    return userWithUrl.map(user => new UserViewDTO(user))
   }
 
   async deleteUser (userId: any): Promise<void> {

@@ -1,16 +1,20 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator"
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator"
 
 export class UserDTO {
   constructor (user: UserDTO) {
     this.id = user.id
     this.name = user.name
     this.createdAt = user.createdAt
+    this.username = user.username
     this.image = user.image
+    this.biography = user.biography;
   }
 
   id: string
+  username!: string
   name: string | null
   image: string | null;
+  biography: string | null;
   createdAt: Date
 }
 
@@ -18,12 +22,11 @@ export class ExtendedUserDTO extends UserDTO {
   constructor (user: ExtendedUserDTO) {
     super(user)
     this.email = user.email
-    this.name = user.name
     this.password = user.password
   }
 
   email!: string
-  username!: string
+  
   password!: string
 }
 export class UserViewDTO {
@@ -31,13 +34,13 @@ export class UserViewDTO {
     this.id = user.id
     this.name = user.name
     this.username = user.username
-    this.profilePicture = user.profilePicture
+    this.image = user.image
   }
 
   id: string
-  name: string
+  name: string | null
   username: string
-  profilePicture: string | null
+  image: string | null
 }
 export class UpdateUserInputDTO {
   @IsOptional()
@@ -49,10 +52,11 @@ export class UpdateUserInputDTO {
   @IsString()
   @IsNotEmpty()
     image?: string
-
+    
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-    biografy?: string
+  @MaxLength(240)
+    biography?: string
 }
 

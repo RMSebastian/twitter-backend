@@ -29,6 +29,7 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Optional value
   image     String? 
+  biography String?
   posts     Post[]
   follows   Follow[] @relation(name: "follows")
   followers Follow[] @relation(name: "followers")

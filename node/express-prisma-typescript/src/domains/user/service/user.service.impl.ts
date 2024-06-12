@@ -15,7 +15,7 @@ export class UserServiceImpl implements UserService {
     return userWithUrl;
   }
   async updateUser(userId: string, data: UpdateUserInputDTO): Promise<UserDTO>{
-    if(data.image)data.image = `user-${userId}-${data.image}`;
+    if(data.image)data.image = `user/${userId}/${Date.now()}/${data.image}`; //
     const user = await this.repository.update(userId,data);
     if (!user) throw new NotFoundException('user');
     const userWithUrl = await this.putUrl(user);

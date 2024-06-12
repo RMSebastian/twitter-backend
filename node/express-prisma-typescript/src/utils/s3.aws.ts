@@ -14,7 +14,7 @@ export async function GetObjectFromS3(key: string): Promise<string>{
         const url = await s3.getSignedUrlPromise("getObject",{
             Bucket: process.env.BUCKET_NAME,
             Key: key,
-            Expires: 60,
+            Expires: 120,
         });
 
         return url
@@ -28,7 +28,8 @@ export async function PutObjectFromS3(key: string): Promise<string>{
         const url = await s3.getSignedUrlPromise("putObject",{
             Bucket: process.env.BUCKET_NAME,
             Key: key,
-            Expires: 60,
+            Expires: 120,
+            ContentType: 'image/jpeg',
         });
         
         console.log(url);

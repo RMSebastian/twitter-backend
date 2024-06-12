@@ -6,7 +6,7 @@ import { UserRepository } from "@domains/user/repository";
 import { validate } from "class-validator";
 import { CommentRepository } from "../repository";
 import { ForbiddenException, NotFoundException } from "@utils";
-import { GetObjectFromS3 } from "@utils/s3.aws";
+import { GetObjectFromS3, PutObjectFromS3 } from "@utils/s3.aws";
 
 export class CommentServiceImpl implements CommentService{
     constructor (
@@ -16,13 +16,9 @@ export class CommentServiceImpl implements CommentService{
     
     async createComment(userId: string, data: CreatePostInputDTO, postId: string | null): Promise<PostDTO> {
         await validate(data)
-        if(data.images){
-          for (let index = 0; index < data.images.length; index++) {
-            data.images[index] = `comment-${userId}-${index}-${data.images[index]}`;
-          }
-        }
+        if(data.images)data.images = data.images.map((image, index) => `comment/${userId}/${index}/${Date.now()}/${image}`)
         const comment = await this.commentRepository.create(userId, data,postId);
-        const commentWithUrl = await this.getUrl(comment);
+        const commentWithUrl = await this.putUrl(comment);
         return commentWithUrl;
     }
     async deleteComment (userId: string, postId: string): Promise<void>  {
@@ -41,20 +37,25 @@ export class CommentServiceImpl implements CommentService{
         const commentsWithUrl = await this.getUrlsArray(comments);
         return commentsWithUrl;
     }
-    private async getUrl(post: PostDTO): Promise<PostDTO>{
-        if(post.images.length != 0){
-          for(let image of post.images) image = await GetObjectFromS3(image)
-        }
-        return post;
+    private async putUrl(comment: PostDTO): Promise<PostDTO>{
+      if(comment.images.length != 0){
+        const promises = comment.images.map(image => PutObjectFromS3(image));
+        comment.images = await Promise.all(promises);
+      }
+      return comment;
+    }
+    private async getUrl(comment: PostDTO): Promise<PostDTO>{
+      if(comment.images.length != 0){
+        const promises = comment.images.map(image => GetObjectFromS3(image));
+        comment.images = await Promise.all(promises);
+      }
+        return comment;
       }
       private async getUrlsArray(comments: PostDTO[]): Promise<PostDTO[]>{
         for (const comment of comments) { 
-          for (let image of comment.images) {
-            if (image != " ") {
-              const url = await GetObjectFromS3(image);
-              if (!url) throw new NotFoundException('url');
-              image = url;
-            }
+          if(comment.images.length != 0){
+            const promises = comment.images.map(image => GetObjectFromS3(image));
+            comment.images = await Promise.all(promises);
           }
         }
         return comments;

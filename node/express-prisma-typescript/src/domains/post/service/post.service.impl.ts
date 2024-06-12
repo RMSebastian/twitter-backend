@@ -16,14 +16,10 @@ export class PostServiceImpl implements PostService {
 
   async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     await validate(data)
-    if(data.images){
-      for (let index = 0; index < data.images.length; index++) {
-        data.images[index] = `post-${userId}-${index}-${data.images[index]}`;
-      }
-    }
+    if(data.images)data.images = data.images.map((image, index) => `post/${userId}/${index}/${Date.now()}/${image}`);
     const post = await this.postRepository.create(userId, data);
 
-    const postWithUrl = await this.getUrl(post);
+    const postWithUrl = await this.putUrl(post);
     return postWithUrl;
   }
   async deletePost (userId: string, postId: string): Promise<void> {
@@ -67,24 +63,23 @@ export class PostServiceImpl implements PostService {
   }
   private async putUrl(post: PostDTO): Promise<PostDTO>{
     if(post.images.length != 0){
-      for(let image of post.images) image = await PutObjectFromS3(image)
+      const promises = post.images.map(image => PutObjectFromS3(image));
+      post.images = await Promise.all(promises);
     }
     return post;
   }
   private async getUrl(post: PostDTO): Promise<PostDTO>{
     if(post.images.length != 0){
-      for(let image of post.images) image = await GetObjectFromS3(image)
+      const promises = post.images.map(image => GetObjectFromS3(image));
+      post.images = await Promise.all(promises);
     }
     return post;
   }
   private async getUrlsArray(posts: PostDTO[]): Promise<PostDTO[]>{
     for (const post of posts) { 
-      for (let image of post.images) {
-        if (image != " ") {
-          const url = await GetObjectFromS3(image);
-          if (!url) throw new NotFoundException('url');
-          image = url;
-        }
+      if(post.images.length != 0){
+        const promises = post.images.map(image => GetObjectFromS3(image));
+        post.images = await Promise.all(promises);
       }
     }
     return posts;

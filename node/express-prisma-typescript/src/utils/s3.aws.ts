@@ -20,9 +20,7 @@ export async function GetObjectFromS3(key: string): Promise<string> {
             Bucket: process.env.BUCKET_NAME,
             Key: key,
         });
-        console.log(command);
         const url = await getSignedUrl(s3Client, command, { expiresIn: 120 });
-        console.log(url);
         return url;
     } catch (err) {
         throw err;

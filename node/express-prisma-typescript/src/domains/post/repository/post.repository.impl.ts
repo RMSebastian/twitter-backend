@@ -57,9 +57,32 @@ export class PostRepositoryImpl implements PostRepository {
   async getByAuthorId (authorId: string): Promise<PostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
-        authorId
+        authorId: authorId,
+        parentId: null,
+        author:{
+          isPrivate: false
+        }
       }
     })
     return posts.map(post => new PostDTO(post))
   }
+  async getCountByUserId(userId: string): Promise<number>{
+    const count = await this.db.post.count({
+        where: {
+            id: userId
+        }
+    });
+
+    return count;
 }
+async getCountByPostId(postId: string): Promise<number>{
+    const count = await this.db.post.count({
+        where: {
+          parentId: postId
+        }
+    });
+
+    return count;
+}
+}
+

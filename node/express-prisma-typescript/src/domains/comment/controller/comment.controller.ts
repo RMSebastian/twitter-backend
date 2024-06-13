@@ -142,6 +142,21 @@ commentRouter.get('/by_post/:postId', async (req: Request, res: Response) => {
  *           type: string
  *         required: true
  *         description: ID of the user whose comment are to be retrieved.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
+ *         description: The amount of records to return
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: The id of the record after the last returned record
+ *       - in: query
+ *         name: after
+ *         schema:
+ *           type: string
+ *         description: The id of the record before the first returned record
  *     responses:
  *       2XX:
  *         description: A list of comment created by the specified user.

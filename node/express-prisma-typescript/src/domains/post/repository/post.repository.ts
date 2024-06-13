@@ -7,4 +7,6 @@ export interface PostRepository {
   delete: (postId: string) => Promise<void>
   getById: (postId: string) => Promise<PostDTO | null>
   getByAuthorId: (authorId: string) => Promise<PostDTO[]>
+  getCountByUserId(userId: string): Promise<number>
+  getCountByPostId(postId: string): Promise<number>
 }

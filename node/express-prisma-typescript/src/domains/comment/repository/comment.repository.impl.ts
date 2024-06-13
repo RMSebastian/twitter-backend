@@ -75,7 +75,7 @@ export class CommentRepositoryImpl implements CommentRepository{
     async getCountByPostId(postId: string): Promise<number>{
       const count = await this.db.post.count({
         where:{
-          id: postId
+          parentId: postId
         }
       })
 

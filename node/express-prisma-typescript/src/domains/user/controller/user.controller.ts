@@ -8,6 +8,7 @@ import { BodyValidation, db } from '@utils'
 import { UserRepositoryImpl } from '../repository'
 import { UserService, UserServiceImpl } from '../service'
 import { UpdateUserInputDTO } from '../dto'
+import httpStatus from 'http-status'
 
 export const userRouter = Router()
 
@@ -25,6 +26,17 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db));
  *    summary: "Get a list of all users"
  *    tags: [user]
  *    description: get a list of all user recommendations paginated according the user that sends it
+ *    parameters:
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: string
+ *        description: The amount of records to return
+ *      - in: query
+ *        name: skip
+ *        schema:
+ *          type: string
+ *        description: The amount of records to skip
  *    responses:
  *        2XX:
  *            description: returned the list of user recommendations
@@ -107,6 +119,55 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
   const user = await service.getUser(otherUserId)
 
   return res.status(HttpStatus.OK).json(user)
+})
+/**
+ * @swagger
+ * /api/user/by_username/{username}:
+ *   get:
+ *     security:
+ *         - apiKey: []
+ *     summary: "Get users by username"
+ *     tags: [user]
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The username
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
+ *         description: The amount of records to return
+ *       - in: query
+ *         name: skip
+ *         schema:
+ *           type: string
+ *         description: The amount of records to skip
+ *     responses:
+ *       2XX:
+ *         description: Got users
+ *         content:
+ *             application/json:
+ *                 schema:
+ *                     type: array
+ *                     items:
+ *                         $ref: '#/components/schemas/UserDTO'
+ *       4XX:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+userRouter.get('/by_username/:username', async (req: Request, res: Response)=>{
+  const {username} = req.params;
+  const{limit, skip} = req.query as Record<string,string>
+
+  const users = await service.getUsersByUsername(username, {limit: Number(limit), skip: Number(skip)})
+
+  res.status(httpStatus.OK).json(users);
 })
 /**
  * @swagger
@@ -195,7 +256,6 @@ userRouter.post('/update/:userId',BodyValidation(UpdateUserInputDTO), async (req
  *          description: User's creation date
  *      tags: [user]
  */
-
 /**
  * @swagger
  * components:

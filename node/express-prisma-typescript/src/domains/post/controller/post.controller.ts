@@ -10,12 +10,17 @@ import { PostService, PostServiceImpl } from '../service'
 import { CreatePostInputDTO } from '../dto'
 import { UserRepositoryImpl } from '@domains/user/repository'
 import { FollowerRepositoryImpl } from '@domains/follower/repository'
+import { ReactionRepositoryImpl } from '@domains/reaction'
 
 export const postRouter = Router()
 
 // Use dependency injection
 const service: PostService = new PostServiceImpl(
-new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryImpl(db));
+new PostRepositoryImpl(db),
+new FollowerRepositoryImpl(db),
+new UserRepositoryImpl(db),
+new ReactionRepositoryImpl(db),
+);
 
 
 /**
@@ -29,6 +34,22 @@ new PostRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryIm
  *         - apiKey: []
  *     summary: Get posts
  *     tags: [post]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
+ *         description: The amount of records to return
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: The id of the record after the last returned record
+ *       - in: query
+ *         name: after
+ *         schema:
+ *           type: string
+ *         description: The id of the record before the first returned record
  *     responses:
  *       2XX:
  *         description: Got posts

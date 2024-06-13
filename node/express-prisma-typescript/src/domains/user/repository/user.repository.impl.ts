@@ -6,7 +6,7 @@ import { UserRepository } from './user.repository'
 
 export class UserRepositoryImpl implements UserRepository {
   constructor (private readonly db: PrismaClient) {}
-
+  
   async create (data: SignupInputDTO): Promise<UserDTO> {    
     const user = await this.db.user.create({
       data
@@ -80,4 +80,21 @@ export class UserRepositoryImpl implements UserRepository {
     })
     return user ? new ExtendedUserDTO(user) : null
   }
+  async getAllByUsernamePaginated(username: string, options: OffsetPagination): Promise<UserDTO[]> {
+    const users = await this.db.user.findMany({
+      where: {
+        username: {
+          contains: username,
+          mode:'insensitive'
+        }
+      },
+      take:options.limit ? options.limit : undefined,
+      skip:options.skip ? options.skip : undefined,
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+    return users;
+  }
+
 }

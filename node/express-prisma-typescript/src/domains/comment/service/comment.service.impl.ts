@@ -68,6 +68,11 @@ export class CommentServiceImpl implements CommentService{
       const extendedPosts = await Promise.all(comments.map(async (comment) =>{
         const author = await this.userRepository.getById(comment.authorId);
         if(author == null) throw new NotFoundException(`AUTHOR_NOT_EXITS_ID:${comment.authorId}`);
+        if(author.image != null){
+          const url = await GetObjectFromS3(author.image);
+          if(!url)throw new NotFoundException('url')
+            author.image = url;
+        }
         const qtyComments = await  this.commentRepository.getCountByPostId(comment.id);
         const qtyLikes = await this.reactionRepository.getCountByPostId(comment.id,ReactionType.Like);
         const qtyRetweets = await this.reactionRepository.getCountByPostId(comment.id,ReactionType.Retweet);

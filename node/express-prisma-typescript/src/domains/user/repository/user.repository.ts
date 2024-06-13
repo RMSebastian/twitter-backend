@@ -10,4 +10,5 @@ export interface UserRepository {
   getById: (userId: string) => Promise<UserDTO | null>
   getPrivacyById(userId: string): Promise<boolean | null>
   getByEmailOrUsername: (email?: string, username?: string) => Promise<ExtendedUserDTO | null>
+  getAllByUsernamePaginated(username: string, options :OffsetPagination): Promise<UserDTO[]>
 }

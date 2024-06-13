@@ -28,6 +28,11 @@ export class UserServiceImpl implements UserService {
     const userWithUrl = await this.getUrlsArray(users);
     return userWithUrl.map(user => new UserViewDTO(user))
   }
+  async getUsersByUsername(username: string, options: OffsetPagination): Promise<UserViewDTO[]>{
+    const users = await this.repository.getAllByUsernamePaginated(username,options)
+    const userWithUrl = await this.getUrlsArray(users);
+    return userWithUrl.map(user => new UserViewDTO(user))
+  }
 
   async deleteUser (userId: any): Promise<void> {
     await this.repository.delete(userId)

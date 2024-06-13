@@ -1,40 +1,46 @@
-import * as AWS from "aws-sdk";
+import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { ConflictException } from "./errors";
 
-AWS.config.update({
-    region: "sa-east-1",
-    accessKeyId:process.env.BUCKET_ACCESS_KEY,
-    secretAccessKey: process.env.BUCKET_SECRET_ACCESS_KEY,
-});
+const SECRET_KEY = process.env.BUCKET_SECRET_ACCESS_KEY as string;
+const ACCESS_KEY = process.env.BUCKET_ACCESS_KEY as string;
+const REGION = process.env.AWS_REGION as string;
 
-const s3 = new AWS.S3();
+const s3Client = new S3Client({
+    region:REGION,
+    credentials:{
+        accessKeyId:ACCESS_KEY,
+        secretAccessKey:SECRET_KEY
+    }
+})
 
-export async function GetObjectFromS3(key: string): Promise<string>{
-    try{
-        const url = await s3.getSignedUrlPromise("getObject",{
+export async function GetObjectFromS3(key: string): Promise<string> {
+    try {
+        const command = new GetObjectCommand({
             Bucket: process.env.BUCKET_NAME,
             Key: key,
-            Expires: 120,
         });
-
-        return url
-    }catch(err){
-        throw new ConflictException("GetObjectFromS3");
+        console.log(command);
+        const url = await getSignedUrl(s3Client, command, { expiresIn: 120 });
+        console.log(url);
+        return url;
+    } catch (err) {
+        throw err;
     }
 }
 
-export async function PutObjectFromS3(key: string): Promise<string>{
-    try{
-        const url = await s3.getSignedUrlPromise("putObject",{
+export async function PutObjectFromS3(key: string): Promise<string> {
+    try {
+        const command = new PutObjectCommand({
             Bucket: process.env.BUCKET_NAME,
             Key: key,
-            Expires: 120,
-            ContentType: 'image/jpeg',
+            ContentType: 'image/jpeg'
         });
+        const url = await getSignedUrl(s3Client, command, { expiresIn: 120 });
         
         console.log(url);
-        return url
-    }catch(err){
-        throw new ConflictException("PutObjectFromS3");
+        return url;
+    } catch (err) {
+        throw err;
     }
 }

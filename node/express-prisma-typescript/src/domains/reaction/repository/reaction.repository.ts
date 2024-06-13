@@ -6,4 +6,6 @@ export interface ReactionRepository{
     delete(reactionId: string): Promise<void>
     getReactionId(userId: string,postId: string, data: CreateReactionInputDTO): Promise<string | null>
     getAllByUserId(userId: string, filter: null | ReactionType): Promise<ReactionDTO[]>
+    getCountByUserId(userId: string, filter: null | ReactionType): Promise<number>
+    getCountByPostId(postId: string, filter: null | ReactionType): Promise<number>
 }

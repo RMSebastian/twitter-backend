@@ -45,22 +45,42 @@ export class CommentRepositoryImpl implements CommentRepository{
             orderBy: [
               {
                 createdAt: 'desc'
-              },
-              {
-                id: 'asc'
               }
             ]
           }
         );
         return comments.map(comment => new PostDTO(comment));
     }
-    async getAllByPostId(postId: string): Promise<PostDTO[]> {
+    
+    async getAllByPostId(postId: string, options: CursorPagination): Promise<PostDTO[]> {
       const comments = await this.db.post.findMany({
-          where:{parentId: postId}
-        }
-      );
-        
+        where:{parentId: postId},
+        cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+        skip: options.after ?? options.before ? 1 : undefined,
+        take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+        orderBy: [
+          {
+            reaction: {
+              _count: 'desc'
+            }
+          },
+          {
+            createdAt: 'desc'
+          }
+        ]
+      }
+    );
       return comments.map(comment => new PostDTO(comment));
     }
+    async getCountByPostId(postId: string): Promise<number>{
+      const count = await this.db.post.count({
+        where:{
+          id: postId
+        }
+      })
+
+      return count;
+    }
+    
     
 }

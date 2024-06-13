@@ -8,11 +8,15 @@ import { FollowerRepositoryImpl } from '@domains/follower';
 import { UserRepositoryImpl } from '@domains/user/repository';
 import { CreatePostInputDTO } from '@domains/post/dto';
 import { CommentRepositoryImpl } from '../repository';
+import { ReactionRepositoryImpl } from '@domains/reaction';
 
 export const commentRouter = Router();
 
 const service: CommentService = new CommentServiceImpl(
-    new CommentRepositoryImpl(db), new FollowerRepositoryImpl(db), new UserRepositoryImpl(db)
+    new CommentRepositoryImpl(db), 
+    new FollowerRepositoryImpl(db), 
+    new UserRepositoryImpl(db),
+    new ReactionRepositoryImpl(db),
 );
 /**
  * @swagger
@@ -23,6 +27,22 @@ const service: CommentService = new CommentServiceImpl(
  *     summary: Get comments by user id
  *     description: Retrieve comments created by a specific user.
  *     tags: [comment]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
+ *         description: The amount of records to return
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: The id of the record after the last returned record
+ *       - in: query
+ *         name: after
+ *         schema:
+ *           type: string
+ *         description: The id of the record before the first returned record
  *     responses:
  *       2XX:
  *         description: A list of comment created by the specified user.
@@ -66,6 +86,21 @@ const service: CommentService = new CommentServiceImpl(
  *           type: string
  *         required: true
  *         description: The post id
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
+ *         description: The amount of records to return
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: The id of the record after the last returned record
+ *       - in: query
+ *         name: after
+ *         schema:
+ *           type: string
+ *         description: The id of the record before the first returned record
  *     responses:
  *       2XX:
  *         description: Got comments by post id
@@ -84,9 +119,10 @@ const service: CommentService = new CommentServiceImpl(
  */
 commentRouter.get('/by_post/:postId', async (req: Request, res: Response) => {
     const { postId } = req.params
+
+    const {limit, after, before} = req.query as Record<string,string>;
   
-    const comments = await service.getCommentsByPostId(postId)
-  
+    const comments = await service.getCommentsByPostId(postId,{limit: Number(limit),after,before})
     return res.status(HttpStatus.OK).json(comments)
   })
 

@@ -1,5 +1,5 @@
 import { ArrayMaxSize, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
-import { ExtendedUserDTO } from '@domains/user/dto'
+import { UserDTO } from '@domains/user/dto'
 
 export class CreatePostInputDTO {
   @IsString()
@@ -37,7 +37,7 @@ export class ExtendedPostDTO extends PostDTO {
     this.qtyRetweets = post.qtyRetweets
   }
 
-  author!: ExtendedUserDTO
+  author!: UserDTO //cambie de ExtendedUserDTO a UserDTO por el password en el DTO
   qtyComments!: number
   qtyLikes!: number
   qtyRetweets!: number

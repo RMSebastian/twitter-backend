@@ -44,4 +44,24 @@ export class ReactionRepositoryImpl implements ReactionRepository{
     
         return reaction.map(reaction => new ReactionDTO(reaction));
     }
+    async getCountByUserId(userId: string, filter: null | ReactionType): Promise<number>{
+        const count = await this.db.reaction.count({
+            where: {
+                userId: userId,
+                ...(filter !== null && { type: filter })
+            }
+        });
+    
+        return count;
+    }
+    async getCountByPostId(postId: string, filter: null | ReactionType): Promise<number>{
+        const count = await this.db.reaction.count({
+            where: {
+                postId: postId,
+                ...(filter !== null && { type: filter })
+            }
+        });
+    
+        return count;
+    }
 }

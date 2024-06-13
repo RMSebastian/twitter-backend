@@ -6,5 +6,6 @@ export interface CommentRepository{
     delete(postId: string): Promise<void>
     getById(postId: string): Promise<PostDTO | null>
     getAllById(userId: string,options: CursorPagination): Promise<PostDTO[]>
-    getAllByPostId(postId: string): Promise<PostDTO[]>
+    getAllByPostId(postId: string, options: CursorPagination): Promise<PostDTO[]>
+    getCountByPostId(postId: string): Promise<number>
 }

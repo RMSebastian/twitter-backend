@@ -58,7 +58,7 @@ new ReactionRepositoryImpl(db),
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/PostDTO'
+ *                 $ref: '#/components/schemas/ExtendedPostDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -135,7 +135,7 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/PostDTO'
+ *                 $ref: '#/components/schemas/ExtendedPostDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -250,6 +250,28 @@ postRouter.delete('/:postId', async (req: Request, res: Response) => {
  *          format: date
  *          description: Post init date
  *      tags: [post] 
+ */
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ExtendedPostDTO:
+ *       allOf:
+ *         - $ref: '#/components/schemas/PostDTO'
+ *         - type: object
+ *           properties:
+ *             author:
+ *               $ref: '#/components/schemas/UserDTO'
+ *               description: Post author details
+ *             qtyComments:
+ *               type: integer
+ *               description: Quantity of comments on the post
+ *             qtyLikes:
+ *               type: integer
+ *               description: Quantity of likes on the post
+ *             qtyRetweets:
+ *               type: integer
+ *               description: Quantity of retweets of the post
  */
 /**  
 /**

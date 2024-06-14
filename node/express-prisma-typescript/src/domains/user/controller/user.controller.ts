@@ -9,11 +9,12 @@ import { UserRepositoryImpl } from '../repository'
 import { UserService, UserServiceImpl } from '../service'
 import { UpdateUserInputDTO } from '../dto'
 import httpStatus from 'http-status'
+import { FollowerRepositoryImpl } from '@domains/follower'
 
 export const userRouter = Router()
 
 // Use dependency injection
-const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db));
+const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db),new FollowerRepositoryImpl(db));
 /**
  * @swagger
  * tags:
@@ -45,7 +46,13 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db));
  *                    schema:
  *                        type: array
  *                        items:
- *                            $ref: '#/components/schemas/UserDTO'
+ *                            $ref: '#/components/schemas/UserViewDTO'
+ *        4XX:
+ *            description: Error with the request
+ *            content:
+ *                application/json:
+ *                    schema:
+ *                        $ref: '#/components/schemas/ErrorResponse'
  */
 userRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
@@ -69,7 +76,7 @@ userRouter.get('/', async (req: Request, res: Response) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
+ *               $ref: '#/components/schemas/ExtendedUserViewDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -80,8 +87,7 @@ userRouter.get('/', async (req: Request, res: Response) => {
 userRouter.get('/me', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
 
-  const user = await service.getUser(userId)
-
+  const user = await service.getUser(userId, userId)
   return res.status(HttpStatus.OK).json(user)
 })
 /**
@@ -105,7 +111,7 @@ userRouter.get('/me', async (req: Request, res: Response) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/UserDTO'
+ *               $ref: '#/components/schemas/ExtendedUserViewDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -114,10 +120,10 @@ userRouter.get('/me', async (req: Request, res: Response) => {
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 userRouter.get('/:userId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
   const { userId: otherUserId } = req.params
 
-  const user = await service.getUser(otherUserId)
-
+  const user = await service.getUser(userId,otherUserId)
   return res.status(HttpStatus.OK).json(user)
 })
 /**
@@ -153,7 +159,7 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
  *                 schema:
  *                     type: array
  *                     items:
- *                         $ref: '#/components/schemas/UserDTO'
+ *                         $ref: '#/components/schemas/UserViewDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -241,20 +247,71 @@ userRouter.post('/update/:userId',BodyValidation(UpdateUserInputDTO), async (req
  *      type: object
  *      required:
  *        - id
+ *        - username
  *        - name
+ *        - image
+ *        - biography
  *        - createdAt
  *      properties:
  *        id:
  *          type: string
  *          description: User's id
+ *        username:
+ *          type: string
+ *          description: User's username
  *        name:
  *          type: string
  *          description: User's name
+ *        image:
+ *          type: string
+ *          description: User's image
+ *        biography:
+ *          type: string
+ *          description: User's biography
  *        createdAt:
  *          type: string
  *          format: date
  *          description: User's creation date
  *      tags: [user]
+ */
+/**
+ * @swagger
+ * components:
+ *  schemas:  
+ *    UserViewDTO:
+ *      type: object
+ *      required:
+ *        - id
+ *        - username
+ *        - name
+ *        - image
+ *      properties:
+ *        id:
+ *          type: string
+ *          description: User's id
+ *        username:
+ *          type: string
+ *          description: User's username
+ *        name:
+ *          type: string
+ *          description: User's name
+ *        image:
+ *          type: string
+ *          description: User's image
+ *      tags: [user]
+ */
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     ExtendedUserViewDTO:
+ *       allOf:
+ *         - $ref: '#/components/schemas/UserViewDTO'
+ *         - type: object
+ *           properties:
+ *             follow:
+ *               type: boolean
+ *               description: Indicates if the user is followed
  */
 /**
  * @swagger
@@ -274,3 +331,4 @@ userRouter.post('/update/:userId',BodyValidation(UpdateUserInputDTO), async (req
  *          description: User's bipgraphy
  *      tags: [user]
  */
+

@@ -42,6 +42,12 @@ export class UserViewDTO {
   username: string
   image: string | null
 }
+export class ExtendedUserViewDTO extends UserViewDTO{
+  constructor (user: ExtendedUserViewDTO) {
+    super(user)
+  }
+  follow?: boolean;
+}
 export class UpdateUserInputDTO {
   @IsOptional()
   @IsString()

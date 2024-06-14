@@ -1,22 +1,33 @@
 import { NotFoundException } from '@utils/errors'
 import { OffsetPagination } from 'types'
-import { UpdateUserInputDTO, UserDTO, UserViewDTO } from '../dto'
+import { ExtendedUserViewDTO, UpdateUserInputDTO, UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
 import { GetObjectFromS3, PutObjectFromS3 } from '@utils/s3.aws'
+import { FollowerRepository } from '@domains/follower'
 
 export class UserServiceImpl implements UserService {
-  constructor (private readonly repository: UserRepository) {}
+  constructor (
+    private readonly userRepository: UserRepository,
+    private readonly followRepository: FollowerRepository
+  ) {}
 
-  async getUser (userId: any): Promise<UserViewDTO> {
-    const user = await this.repository.getById(userId)
+  async getUser (userId: string,otherUserId: string) : Promise<ExtendedUserViewDTO> {
+    const user = await this.userRepository.getById(otherUserId)
     if (!user) throw new NotFoundException('user')
+    const bool = await (async ()=>{
+      if(userId == otherUserId) return undefined;  
+      else return (await this.followRepository.getFollowId(userId,otherUserId) != null)?true:false;
+    })();
     const userWithUrl = await this.getUrl(user);
-    return new UserViewDTO(userWithUrl);
+    const userView = new UserViewDTO(userWithUrl);
+    const extendedUser = new ExtendedUserViewDTO(userView);
+    extendedUser.follow = bool
+    return extendedUser;
   }
   async updateUser(userId: string, data: UpdateUserInputDTO): Promise<UserDTO>{
     if(data.image)data.image = `user/${userId}/${Date.now()}/${data.image}`; //
-    const user = await this.repository.update(userId,data);
+    const user = await this.userRepository.update(userId,data);
     if (!user) throw new NotFoundException('user');
     const userWithUrl = await this.putUrl(user);
     return userWithUrl;
@@ -24,18 +35,18 @@ export class UserServiceImpl implements UserService {
 
   async getUserRecommendations (userId: any, options: OffsetPagination): Promise<UserViewDTO[]> {
     // TODO: make this return only users followed by users the original user follows
-    const users = await this.repository.getRecommendedUsersPaginated(options);
+    const users = await this.userRepository.getRecommendedUsersPaginated(options);
     const userWithUrl = await this.getUrlsArray(users);
     return userWithUrl.map(user => new UserViewDTO(user))
   }
   async getUsersByUsername(username: string, options: OffsetPagination): Promise<UserViewDTO[]>{
-    const users = await this.repository.getAllByUsernamePaginated(username,options)
+    const users = await this.userRepository.getAllByUsernamePaginated(username,options)
     const userWithUrl = await this.getUrlsArray(users);
     return userWithUrl.map(user => new UserViewDTO(user))
   }
 
   async deleteUser (userId: any): Promise<void> {
-    await this.repository.delete(userId)
+    await this.userRepository.delete(userId)
   }
 
   private async putUrl(user: UserDTO): Promise<UserDTO>{

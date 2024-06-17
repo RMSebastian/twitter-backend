@@ -34,6 +34,8 @@ model User {
   follows   Follow[] @relation(name: "follows")
   followers Follow[] @relation(name: "followers")
   reactions Reaction[]
+  messages  Message[]
+  chats     Chat[]
 }
 
 model Follow {
@@ -78,6 +80,25 @@ model Reaction{
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade) // One to many
   post Post @relation(fields: [postId], references: [id],onDelete: Cascade) //One to many
+}
+model Chat{
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  users     User[] // in case of adding groups in a near future
+
+  messages  Message[]
+}
+model Message{
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid 
+  authorId String   @db.Uuid 
+  chatId String @db.Uuid()
+  content  String   @db.VarChar(240)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime    @updatedAt
+
+  chat Chat @relation(fields: [chatId],references: [id],onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 enum ReactionType{

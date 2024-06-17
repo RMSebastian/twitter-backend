@@ -40,5 +40,29 @@ export class FollowerRepositoryImpl implements FollowerRepository{
         });
         return follows.map(follow => follow.followedId)
     }
+    async getRelationshipsByUserId(followerId: string): Promise<string[]>{
+        const follower = await this.db.follow.findMany({
+            where:{
+                followerId: followerId
+            }
+        })
+        const followed = await this.db.follow.findMany({
+            where:{
+                followedId: followerId
+            }
+        })
+        let RelatedUserIds: string[] = [];
+
+        follower.forEach((fer)=>{
+            followed.forEach((fed)=>{
+                if(fer.followedId == fed.followerId){
+                    RelatedUserIds.push(fer.followedId);
+                    return;
+                }
+            })
+        })
+
+        return RelatedUserIds;
+    }
     
 }

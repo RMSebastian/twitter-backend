@@ -10,6 +10,7 @@ import { ErrorHandling } from '@utils/errors'
 import { SetupSwagger } from '@utils/swagger'
 import {Server} from "socket.io";
 import { createServer } from 'http'
+import { SetupSocketIO } from '@socket'
 
 const app = express()
 
@@ -37,41 +38,16 @@ SetupSwagger(app);
 app.use(ErrorHandling)
 
 //Socket.io integrations
+
+declare module 'socket.io' {
+  interface Socket {
+    username?: string; 
+    decoded?: any;
+  }
+}
 const httpServer = createServer(app);
 const io = new Server(httpServer);
-
-io.use((socket, next) => {
-  const token = socket.handshake.headers['authorization']?.split(' ')[1];
-
-  if (!token) {
-    return next(new Error('MISSING_TOKEN'));
-  }
-
-  jwt.verify(token, Constants.TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return next(new Error('INVALID_TOKEN'));
-    }
-    next();
-  });
-});
-
-io.on('connection', (socket)=>{
-  console.log("Client Connected 👨‍🦱")
-
-  //join Room (join a chat with a friend)
-
-  //Leave Room (leave a room without the friend)
-
-  socket.on('message', (data: any)=>{
-    console.log(`Message:${socket.id} had said ${data}`);
-    socket.emit('message',`${socket.id}: ${data}`);
-    
-  });
-
-  socket.on('disconnect',()=>{
-    console.log("user disconnected");
-  })
-})
+SetupSocketIO(io)
 
 httpServer.listen(Constants.PORT, () => {
   Logger.info(`Server listening on port ${Constants.PORT}`)

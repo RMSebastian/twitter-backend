@@ -60,7 +60,7 @@ export class CommentRepositoryImpl implements CommentRepository{
         take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
         orderBy: [
           {
-            reaction: {
+            reaction: {              
               _count: 'desc'
             }
           },

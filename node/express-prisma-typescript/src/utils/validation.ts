@@ -27,3 +27,13 @@ export async function ActionValidation(req: Request, res: Response, next: NextFu
     throw new NotFoundException(`${action}`)
   }
 }
+export async function SocketBodyValidation<T>(target: ClassType<T>,data: any): Promise<boolean>{
+  data = plainToInstance(target,data);
+
+  const errors = await validate(data, {
+    whitelist: true,
+    forbidNonWhitelisted: true
+  });
+  
+  return (errors.length > 0) ?false:true;
+}

@@ -1,3 +1,4 @@
+import { IsNotEmpty, IsString, IsUUID, MaxLength } from "class-validator";
 
 export class ChatDTO {
     constructor (chat: ChatDTO) {
@@ -25,4 +26,30 @@ export class MessageDTO{
     authorId: string;
     content: string
     createdAt: Date;
+}
+
+export class CreateRoomInputDTO {
+    @IsString()
+    @IsNotEmpty()
+    @IsUUID()
+    otherUserId!: string 
+    
+    constructor (otherUserId: string) {
+        this.otherUserId = otherUserId
+    }
+}
+export class CreateMessageInputDTO {
+    @IsString()
+    @IsNotEmpty()
+    @IsUUID()
+    chatId!: string 
+    @IsString()
+    @IsNotEmpty()
+    @MaxLength(240)
+    content!: string
+    
+    constructor (chatId: string, content: string) {
+        this.chatId = chatId;
+        this.content = content;
+    }
 }

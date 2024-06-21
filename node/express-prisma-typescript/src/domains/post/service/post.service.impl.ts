@@ -22,7 +22,6 @@ export class PostServiceImpl implements PostService {
     await validate(data)
     if(data.images)data.images = data.images.map((image, index) => `post/${userId}/${index}/${Date.now()}/${image}`);
     const post = await this.postRepository.create(userId, data);
-
     const postWithUrl = await this.putUrl(post);
     return postWithUrl;
   }

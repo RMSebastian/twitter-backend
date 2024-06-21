@@ -1,6 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { FollowerRepository } from ".";
 import { FollowDTO } from "../dto";
+import { UserDTO } from "@domains/user/dto";
 
 export class FollowerRepositoryImpl implements FollowerRepository{
     constructor(private readonly db: PrismaClient){}
@@ -40,10 +41,30 @@ export class FollowerRepositoryImpl implements FollowerRepository{
         });
         return follows.map(follow => follow.followedId)
     }
-    async getRelationshipsByUserId(followerId: string): Promise<string[]>{
+    async getRelationshipOfUsers(userId: string, otherUserId:string): Promise<boolean>{
+        const follower = await this.db.follow.findMany({
+            where:{
+                OR:[
+                    {AND:{
+                        followedId:userId,
+                        followerId:otherUserId,
+                    }},
+                    {AND:{
+                        followedId:otherUserId,
+                        followerId:userId,
+                    }}
+                ]
+            }
+        })
+        return (follower.length == 2)?true:false;
+    }
+    async getRelationshipsByUserId(followerId: string): Promise<UserDTO[]>{
         const follower = await this.db.follow.findMany({
             where:{
                 followerId: followerId
+            },
+            include:{
+                followed: true,
             }
         })
         const followed = await this.db.follow.findMany({
@@ -51,18 +72,18 @@ export class FollowerRepositoryImpl implements FollowerRepository{
                 followedId: followerId
             }
         })
-        let RelatedUserIds: string[] = [];
+        let users: User[] = [];
 
         follower.forEach((fer)=>{
             followed.forEach((fed)=>{
                 if(fer.followedId == fed.followerId){
-                    RelatedUserIds.push(fer.followedId);
+                    users.push(fer.followed);
                     return;
                 }
             })
         })
 
-        return RelatedUserIds;
+        return users.map(user => new UserDTO(user));
     }
     
 }

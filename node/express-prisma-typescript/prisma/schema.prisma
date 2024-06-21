@@ -85,6 +85,7 @@ model Chat{
   id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  type ChatType
   users     User[] // in case of adding groups in a near future
 
   messages  Message[]
@@ -104,4 +105,8 @@ model Message{
 enum ReactionType{
   Like
   Retweet
+}
+enum ChatType{
+  Couple
+  Group
 }

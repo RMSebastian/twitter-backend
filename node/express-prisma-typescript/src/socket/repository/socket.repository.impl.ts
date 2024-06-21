@@ -6,8 +6,7 @@ export class SocketRepositoryImpl implements SocketRepository{
     constructor(private readonly db: PrismaClient){}
 
     async createChat(userId: string, otherUserId: string): Promise<ChatDTO> {
-        console.log(`UserId: ${userId}`);
-        console.log(`otherUserId: ${otherUserId}`);
+
         const chat = await this.db.chat.create({
             data: {
                 users: {
@@ -15,7 +14,8 @@ export class SocketRepositoryImpl implements SocketRepository{
                     { id: userId },
                     { id: otherUserId }
                   ]
-                }
+                },
+                type: "Couple"
               },
             include:{
                 users: true,
@@ -28,6 +28,39 @@ export class SocketRepositoryImpl implements SocketRepository{
             messages: chat.messages.map((message) => new MessageDTO(message)),
             usersId: chat.users.map((user)=> user.id)
         });
+    }
+    async getChatByUsers(userId: string, otherUserId:string): Promise<ChatDTO | null> {
+        const chat = await this.db.chat.findFirst({
+            where: {
+              AND: [
+                {
+                  users: {
+                    some: {
+                      id: userId,
+                    },
+                  },
+                },
+                {
+                  users: {
+                    some: {
+                      id: otherUserId,
+                    },
+                  },
+                },
+              ],
+              type: "Couple",
+            },
+            include: {
+              users: true,
+              messages: true,
+            },
+          });
+        return(chat != null)?new ChatDTO({
+            id: chat.id,
+            createdAt: chat.createdAt,
+            messages: chat.messages.map((message) => new MessageDTO(message)),
+            usersId: chat.users.map((user)=> user.id)
+        }):null;
     }
     async recoverChats(userId: string): Promise<ChatDTO[]> {
         const chats = await this.db.chat.findMany({
@@ -70,5 +103,33 @@ export class SocketRepositoryImpl implements SocketRepository{
         });
 
         return new MessageDTO(message);
+    }
+    async getChatById(userId: string, chatId: string): Promise<ChatDTO | null>  {
+        const chat = await this.db.chat.findFirst({
+            where:{
+                id: chatId,
+                users:{
+                    some:{
+                        id: userId,
+                    },
+                },
+            },
+            include:{
+                users: true,
+                messages: true
+            }
+        });
+
+        if(chat != null){
+            return new ChatDTO({
+                id: chat.id,
+                createdAt: chat.createdAt,
+                messages: chat.messages.map((message) => new MessageDTO(message)),
+                usersId: chat.users.map((user)=> user.id)
+            });
+        }else{
+            return null
+        }
+        
     }
 }

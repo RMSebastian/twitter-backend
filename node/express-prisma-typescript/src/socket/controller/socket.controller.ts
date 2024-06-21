@@ -1,79 +1,79 @@
-import { ConflictException, db, withAuthSocket } from '@utils'
-import { Server, Socket } from 'socket.io';
+import { SocketBodyValidation, db, withAuthSocket } from '@utils'
+import { Server } from 'socket.io';
 import { SocketService, SocketServiceImpl } from '@socket/service';
 import { FollowerRepositoryImpl } from '@domains/follower';
 import { SocketRepositoryImpl } from '@socket/repository';
+import { CreateMessageInputDTO, CreateRoomInputDTO } from '@socket/dto';
+import { error } from 'console';
+import { UserRepositoryImpl } from '@domains/user/repository';
 
 const service: SocketService = new SocketServiceImpl(
   new FollowerRepositoryImpl(db),
   new SocketRepositoryImpl(db),
+  new UserRepositoryImpl(db)
 );
-
 export function SetupSocketIO(io: Server){
     io.use(withAuthSocket);
 
     io.on('connection', (socket)=>{
-      console.log("Client Connected 👨‍🦱")
+      console.log("Client Connected 👨‍🦱");
 
-      socket.on('join', async()=>{
-        if (!socket.decoded) {
-          console.error('No JWT decoded data available');
-          return;
-        }
+      socket.on('joinLobby', async()=>{
+
         const {userId} = socket.decoded
-        console.log(userId);
-        console.log(socket.decoded);
+
         const chats = await service.recoverChats(userId);
-        if(chats != null){
 
-          const json = JSON.stringify(chats);
+        if(chats != null)socket.emit('joinLobby', JSON.stringify(chats));
 
-          chats.forEach((chat)=>{
-            socket.join(chat.id);
-            
-          })
-          socket.to(socket.id).emit('newChat', json);
-        }
-        else{
-          socket.to(socket.id).emit('newChat', "no friends")
-        }
+        else socket.emit('joinLobby', "no friends")
+
+        
       });
-      socket.on('createChat',async (data: any)=>{
-        if (!socket.decoded) {
-          console.error('No JWT decoded data available');
-          return;
-        }
+      socket.on('createRoom',async (data: any)=>{
+
+        const validation = await SocketBodyValidation(CreateRoomInputDTO,data)
+
+        if(!validation){socket.emit('createRoom', {description: "invalid data structure"});;return;}
+
         const {userId} = socket.decoded;
-        console.log(userId);
+
         const {otherUserId}= data;
 
         const chat = await service.createChat(userId, otherUserId);
         
-        const json = JSON.stringify(chat);
+        if(chat != null){
+          socket.join(chat.id);
 
-        chat.usersId.forEach(userId => {
-          const userSocket = io.sockets.sockets.get(userId);
-          if (userSocket) {
-            userSocket.join(chat.id);
-          }
-        });
+          const json = JSON.stringify(chat)
 
-        chat.usersId.forEach(user => {
-          io.to(user).emit('newChat', json);
-        });
-      })
+          socket.emit('createRoom', json);
+        }
+        else socket.emit('createRoom', {description: "failure on creation of room"});
+
+        
+      });
+
       socket.on('createMessage', async (data: any)=>{
+
+        const validation = await SocketBodyValidation(CreateMessageInputDTO,data)
+
+        if(!validation){socket.emit('createMessage', {description: "invalid data structure"});;return;}
+
         const {userId} = socket.decoded;
+
         const {chatId, content} = data;
 
         const message = await service.createMessage(userId,chatId,content);
-        const json = JSON.stringify(message);
 
-        socket.to(message.chatId).emit('newMessage',json);
+        const json = JSON.stringify(message)
+        if(message != null){
+          socket.to(message.chatId).emit('createMessage',json);
+
+          socket.emit('createMessage', json);
+        }
+        else socket.emit('createMessage', {description: "failure on creation of message"});
+
       });
-    
-      socket.on('disconnect',()=>{
-        console.log("user disconnected");
-      })
     });
 }

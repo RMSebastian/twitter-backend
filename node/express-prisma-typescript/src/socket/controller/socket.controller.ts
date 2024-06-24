@@ -34,7 +34,7 @@ export function SetupSocketIO(io: Server){
 
         const validation = await SocketBodyValidation(CreateRoomInputDTO,data)
 
-        if(!validation){socket.emit('createRoom', {description: "invalid data structure"});;return;}
+        if(!validation){socket.emit('error', {description: "invalid data structure"});;return;}
 
         const {userId} = socket.decoded;
 
@@ -49,7 +49,7 @@ export function SetupSocketIO(io: Server){
 
           socket.emit('createRoom', json);
         }
-        else socket.emit('createRoom', {description: "failure on creation of room"});
+        else socket.emit('error', {description: "failure on creation of room"});
 
         
       });
@@ -58,7 +58,7 @@ export function SetupSocketIO(io: Server){
 
         const validation = await SocketBodyValidation(CreateMessageInputDTO,data)
 
-        if(!validation){socket.emit('createMessage', {description: "invalid data structure"});;return;}
+        if(!validation){socket.emit('error', {description: "invalid data structure"});;return;}
 
         const {userId} = socket.decoded;
 
@@ -72,7 +72,7 @@ export function SetupSocketIO(io: Server){
 
           socket.emit('createMessage', json);
         }
-        else socket.emit('createMessage', {description: "failure on creation of message"});
+        else socket.emit('error', {description: "failure on creation of message"});
 
       });
     });

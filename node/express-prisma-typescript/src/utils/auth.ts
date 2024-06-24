@@ -4,6 +4,7 @@ import { Request, Response } from 'express'
 import { Constants } from '@utils'
 import { UnauthorizedException } from '@utils/errors'
 import { Socket } from 'socket.io'
+import { error } from 'console'
 
 export const generateAccessToken = (payload: Record<string, string | boolean | number>): string => {
   // Do not use this in production, the token will last 24 hours
@@ -25,19 +26,20 @@ export const withAuth = (req: Request, res: Response, next: () => any): void => 
     next()
   })
 }
-export const withAuthSocket = (socket: Socket, next: () => any) => {
+export const withAuthSocket = (socket: Socket, next: (err?:any) => any) => {
   const token = socket.handshake.headers['authorization']?.split(' ')[1];
 
   if (!token) {
-    throw new UnauthorizedException('INVALID_TOKEN')
+    return next(new UnauthorizedException('INVALID_TOKEN'));
   }
   
   jwt.verify(token, Constants.TOKEN_SECRET, (err, decoded) => {
       if (err) {
-        throw new UnauthorizedException('INVALID_TOKEN')
+        return next(new UnauthorizedException('INVALID_TOKEN'));
       }
       socket.decoded = decoded;
       next();
+
   });
 }
 

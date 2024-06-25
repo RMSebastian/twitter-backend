@@ -4,7 +4,7 @@ import { SocketService, SocketServiceImpl } from '@socket/service';
 import { FollowerRepositoryImpl } from '@domains/follower';
 import { SocketRepositoryImpl } from '@socket/repository';
 import { CreateMessageInputDTO, CreateRoomInputDTO } from '@socket/dto';
-import { error } from 'console';
+
 import { UserRepositoryImpl } from '@domains/user/repository';
 
 const service: SocketService = new SocketServiceImpl(

@@ -19,7 +19,6 @@ export class CommentServiceImpl implements CommentService{
       ) {}
     
     async createComment(userId: string, data: CreatePostInputDTO, postId: string | null): Promise<PostDTO> {
-        await validate(data)
         if(data.images)data.images = data.images.map((image, index) => `comment/${userId}/${index}/${Date.now()}/${image}`)
         const comment = await this.commentRepository.create(userId, data,postId);
         const commentWithUrl = await this.putUrl(comment);
@@ -41,21 +40,21 @@ export class CommentServiceImpl implements CommentService{
         const commentsWithUrl = await this.getUrlsArray(comments);
         return await this.ExtendPosts(commentsWithUrl); 
     }
-    private async putUrl(comment: PostDTO): Promise<PostDTO>{
+    public async putUrl(comment: PostDTO): Promise<PostDTO>{
       if(comment.images.length != 0){
         const promises = comment.images.map(image => PutObjectFromS3(image));
         comment.images = await Promise.all(promises);
       }
       return comment;
     }
-    private async getUrl(comment: PostDTO): Promise<PostDTO>{
+    public async getUrl(comment: PostDTO): Promise<PostDTO>{
       if(comment.images.length != 0){
         const promises = comment.images.map(image => GetObjectFromS3(image));
         comment.images = await Promise.all(promises);
       }
         return comment;
     }
-    private async getUrlsArray(comments: PostDTO[]): Promise<PostDTO[]>{
+    public async getUrlsArray(comments: PostDTO[]): Promise<PostDTO[]>{
       for (const comment of comments) { 
         if(comment.images.length != 0){
           const promises = comment.images.map(image => GetObjectFromS3(image));
@@ -64,7 +63,7 @@ export class CommentServiceImpl implements CommentService{
       }
       return comments;
     }
-    private async ExtendPosts(comments: PostDTO[]):Promise<ExtendedPostDTO[]>{
+    public async ExtendPosts(comments: PostDTO[]):Promise<ExtendedPostDTO[]>{
       const extendedPosts = await Promise.all(comments.map(async (comment) =>{
         const author = await this.userRepository.getById(comment.authorId);
         if(author == null) throw new NotFoundException(`AUTHOR_NOT_EXITS_ID:${comment.authorId}`);

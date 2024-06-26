@@ -39,20 +39,6 @@ const commentDto = new PostDTO({
     images: ["CommentPicture.jpg"],
     createdAt: new Date(),
 })
-const extendedCommentDto = new ExtendedPostDTO({
-    ...commentDto,
-    author: {
-        id: "OtherUserId",
-        biography: null,
-        createdAt: new Date(),
-        image: "UserPicture.jpg",
-        name: null,
-        username: "Username"
-    },
-    qtyComments: 10,
-    qtyLikes: 20,
-    qtyRetweets: 5
-});
 const otherUserDto = new UserDTO({
     id: "OtherUserId",
     biography: null,
@@ -73,35 +59,40 @@ describe("CommentServiceImpl",()=>{
         jest.clearAllMocks();
     });
       
+      
     test("", async()=>{
         
     })
-    test("createComment_sucess",async ()=>{
+
+    test("", async()=>{
+        
+    })
+    test("createComment_success",async ()=>{
         s3client.PutObjectFromS3.mockResolvedValue("LinkOfPicture")
         commentRepository.create.mockResolvedValue(commentDto)
-        const post = await commentService.createComment("OtherUserId",createPostData,"PostId")
+        const post = await commentService.createComment(otherUserDto.id,createPostData,postDto.id)
 
-        expect(commentRepository.create).toHaveBeenCalledWith("OtherUserId",createPostData,"PostId");
+        expect(commentRepository.create).toHaveBeenCalledWith(otherUserDto.id,createPostData,postDto.id);
         expect(s3client.PutObjectFromS3).toHaveBeenCalledTimes(1);
         expect(post).not.toBeNull();
         expect(post).toEqual(commentDto);
     })
     test("deleteComment_success", async()=>{
-        commentRepository.getById.mockResolvedValue(postDto)
-        await commentService.deleteComment("UserId","PostId")
+        commentRepository.getById.mockResolvedValue(commentDto)
+        await commentService.deleteComment(otherUserDto.id,commentDto.id)
 
-        expect(commentRepository.getById).toHaveBeenCalledWith("PostId")
+        expect(commentRepository.getById).toHaveBeenCalledWith(commentDto.id)
         expect(commentRepository.delete).toHaveBeenCalled();
     })
     test("deleteComment_NotFoundException_error", async()=>{
         commentRepository.getById.mockResolvedValue(null)
-        await expect(commentService.deleteComment("OtherUserId","PostId")).rejects.toThrow()
-        expect(commentRepository.getById).toHaveBeenCalledWith("PostId")
+        await expect(commentService.deleteComment(otherUserDto.id,commentDto.id)).rejects.toThrow()
+        expect(commentRepository.getById).toHaveBeenCalledWith(commentDto.id)
     })
     test("deleteComment_AuthorForbidden_error", async()=>{
         commentRepository.getById.mockResolvedValue(postDto)
-        await expect(commentService.deleteComment("OtherUserId","PostId")).rejects.toThrow()
-        expect(commentRepository.getById).toHaveBeenCalledWith("PostId")
+        await expect(commentService.deleteComment(otherUserDto.id,commentDto.id)).rejects.toThrow()
+        expect(commentRepository.getById).toHaveBeenCalledWith(commentDto.id)
     })
     test("getLatestComments_success", async()=>{
         commentRepository.getAllById.mockResolvedValue([commentDto])

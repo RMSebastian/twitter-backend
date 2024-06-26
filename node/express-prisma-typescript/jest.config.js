@@ -4,7 +4,8 @@ module.exports = {
   testEnvironment: 'node',
   "moduleNameMapper": {
   "^@domains/(.*)$": "<rootDir>/src/domains/$1",
-  "^@utils": "<rootDir>/src/utils/$1"
+  "^@utils": "<rootDir>/src/utils/$1",
+  "^@aws": "<rootDir>/src/aws/$1"
   },
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],

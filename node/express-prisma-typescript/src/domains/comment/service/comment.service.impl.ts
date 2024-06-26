@@ -87,9 +87,7 @@ export class CommentServiceImpl implements CommentService{
           qtyLikes:qtyLikes,
           qtyRetweets:qtyRetweets,
         });
-      }));
-
-      return extendedPosts;
+      }));return extendedPosts;
     }
 
 }

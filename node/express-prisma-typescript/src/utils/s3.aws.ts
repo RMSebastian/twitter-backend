@@ -1,6 +1,5 @@
 import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { ConflictException } from "./errors";
 
 const SECRET_KEY = process.env.BUCKET_SECRET_ACCESS_KEY as string;
 const ACCESS_KEY = process.env.BUCKET_ACCESS_KEY as string;

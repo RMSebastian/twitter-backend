@@ -3,13 +3,14 @@ import { OffsetPagination } from 'types'
 import { ExtendedUserViewDTO, UpdateUserInputDTO, UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
-import { GetObjectFromS3, PutObjectFromS3 } from '@utils/s3.aws'
 import { FollowerRepository } from '@domains/follower'
+import { S3Service } from '@aws/service'
 
 export class UserServiceImpl implements UserService {
   constructor (
     private readonly userRepository: UserRepository,
-    private readonly followRepository: FollowerRepository
+    private readonly followRepository: FollowerRepository,
+    private readonly s3Client: S3Service
   ) {}
 
   async getUser (userId: string,otherUserId: string) : Promise<ExtendedUserViewDTO> {
@@ -51,7 +52,7 @@ export class UserServiceImpl implements UserService {
 
   private async putUrl(user: UserDTO): Promise<UserDTO>{
     if(user.image != null){
-      const url = await PutObjectFromS3(user.image);
+      const url = await this.s3Client.PutObjectFromS3(user.image);
       if(!url)throw new NotFoundException('url')
       user.image = url;
     }
@@ -59,7 +60,7 @@ export class UserServiceImpl implements UserService {
   }
   private async getUrl(user: UserDTO): Promise<UserDTO>{
     if(user.image != null){
-      const url = await GetObjectFromS3(user.image);
+      const url = await this.s3Client.GetObjectFromS3(user.image);
       if(!url)throw new NotFoundException('url')
       user.image = url;
     }
@@ -68,7 +69,7 @@ export class UserServiceImpl implements UserService {
   private async getUrlsArray(users: UserDTO[]): Promise<UserDTO[]>{
     for (const user of users) { 
       if(user.image != null){
-        const url = await GetObjectFromS3(user.image);
+        const url = await this.s3Client.GetObjectFromS3(user.image);
         if(!url)throw new NotFoundException('url')
         user.image = url;
       }

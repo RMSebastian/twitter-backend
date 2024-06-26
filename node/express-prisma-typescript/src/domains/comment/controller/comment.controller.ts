@@ -9,6 +9,8 @@ import { UserRepositoryImpl } from '@domains/user/repository';
 import { CreatePostInputDTO } from '@domains/post/dto';
 import { CommentRepositoryImpl } from '../repository';
 import { ReactionRepositoryImpl } from '@domains/reaction';
+import { S3ServiceImpl } from '@aws/service';
+import { s3Client } from '@utils/s3client';
 
 export const commentRouter = Router();
 
@@ -17,6 +19,7 @@ const service: CommentService = new CommentServiceImpl(
     new FollowerRepositoryImpl(db), 
     new UserRepositoryImpl(db),
     new ReactionRepositoryImpl(db),
+    new S3ServiceImpl(s3Client)
 );
 /**
  * @swagger

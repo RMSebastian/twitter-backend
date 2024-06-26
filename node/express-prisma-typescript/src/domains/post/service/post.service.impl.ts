@@ -6,9 +6,9 @@ import { ForbiddenException, NotFoundException } from '@utils'
 import { CursorPagination } from '@types'
 import { UserRepository } from '@domains/user/repository'
 import { FollowerRepository } from '@domains/follower/repository'
-import { GetObjectFromS3, PutObjectFromS3 } from '@utils/s3.aws'
 import { ReactionRepository } from '@domains/reaction'
 import { ReactionType } from '@prisma/client'
+import { S3Service } from '@aws/service'
 
 export class PostServiceImpl implements PostService {
   constructor (
@@ -16,6 +16,7 @@ export class PostServiceImpl implements PostService {
     private readonly followRepository: FollowerRepository,
     private readonly userRepository: UserRepository,
     private readonly reactionRepository: ReactionRepository,
+    private readonly s3Client: S3Service
   ) {}
 
   async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
@@ -66,14 +67,14 @@ export class PostServiceImpl implements PostService {
   }
   private async putUrl(post: PostDTO): Promise<PostDTO>{
     if(post.images.length != 0){
-      const promises = post.images.map(image => PutObjectFromS3(image));
+      const promises = post.images.map(image => this.s3Client.PutObjectFromS3(image));
       post.images = await Promise.all(promises);
     }
     return post;
   }
   private async getUrl(post: PostDTO): Promise<PostDTO>{
     if(post.images.length != 0){
-      const promises = post.images.map(image => GetObjectFromS3(image));
+      const promises = post.images.map(image => this.s3Client.GetObjectFromS3(image));
       post.images = await Promise.all(promises);
     }
     return post;
@@ -81,7 +82,7 @@ export class PostServiceImpl implements PostService {
   private async getUrlsArray(posts: PostDTO[]): Promise<PostDTO[]>{
     for (const post of posts) { 
       if(post.images.length != 0){
-        const promises = post.images.map(image => GetObjectFromS3(image));
+        const promises = post.images.map(image => this.s3Client.GetObjectFromS3(image));
         post.images = await Promise.all(promises);
       }
     }
@@ -92,7 +93,7 @@ export class PostServiceImpl implements PostService {
       const author = await this.userRepository.getById(post.authorId);
       if(author == null) throw new NotFoundException(`AUTHOR_NOT_EXITS_ID:${post.authorId}`);
       if(author.image != null){
-        const url = await GetObjectFromS3(author.image);
+        const url = await this.s3Client.GetObjectFromS3(author.image);
         if(!url)throw new NotFoundException('url')
           author.image = url;
       }

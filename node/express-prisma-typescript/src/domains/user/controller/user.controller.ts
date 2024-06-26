@@ -10,11 +10,17 @@ import { UserService, UserServiceImpl } from '../service'
 import { UpdateUserInputDTO } from '../dto'
 import httpStatus from 'http-status'
 import { FollowerRepositoryImpl } from '@domains/follower'
+import { S3ServiceImpl } from '@aws/service'
+import { s3Client } from '@utils/s3client'
 
 export const userRouter = Router()
 
 // Use dependency injection
-const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db),new FollowerRepositoryImpl(db));
+const service: UserService = new UserServiceImpl(
+  new UserRepositoryImpl(db),
+  new FollowerRepositoryImpl(db),
+  new S3ServiceImpl(s3Client)
+);
 /**
  * @swagger
  * tags:

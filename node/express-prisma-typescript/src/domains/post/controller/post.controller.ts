@@ -11,6 +11,8 @@ import { CreatePostInputDTO } from '../dto'
 import { UserRepositoryImpl } from '@domains/user/repository'
 import { FollowerRepositoryImpl } from '@domains/follower/repository'
 import { ReactionRepositoryImpl } from '@domains/reaction'
+import { S3ServiceImpl } from '@aws/service'
+import { s3Client } from '@utils/s3client'
 
 export const postRouter = Router()
 
@@ -20,6 +22,7 @@ new PostRepositoryImpl(db),
 new FollowerRepositoryImpl(db),
 new UserRepositoryImpl(db),
 new ReactionRepositoryImpl(db),
+new S3ServiceImpl(s3Client)
 );
 
 

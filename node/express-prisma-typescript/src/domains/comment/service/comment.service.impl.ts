@@ -3,19 +3,19 @@ import { CursorPagination } from "@types";
 import { CommentService } from ".";
 import { FollowerRepository } from "@domains/follower/repository";
 import { UserRepository } from "@domains/user/repository";
-import { validate } from "class-validator";
 import { CommentRepository } from "../repository";
 import { ForbiddenException, NotFoundException } from "@utils";
-import { GetObjectFromS3, PutObjectFromS3 } from "@utils/s3.aws";
 import { ReactionRepository } from "@domains/reaction";
 import { ReactionType } from "@prisma/client";
+import { S3Service } from "@aws/service";
 
 export class CommentServiceImpl implements CommentService{
     constructor (
         private readonly commentRepository: CommentRepository,
         private readonly followRepository: FollowerRepository,
         private readonly userRepository: UserRepository,
-        private readonly reactionRepository: ReactionRepository
+        private readonly reactionRepository: ReactionRepository,
+        private readonly s3Client: S3Service
       ) {}
     
     async createComment(userId: string, data: CreatePostInputDTO, postId: string | null): Promise<PostDTO> {
@@ -42,14 +42,14 @@ export class CommentServiceImpl implements CommentService{
     }
     public async putUrl(comment: PostDTO): Promise<PostDTO>{
       if(comment.images.length != 0){
-        const promises = comment.images.map(image => PutObjectFromS3(image));
+        const promises = comment.images.map(image => this.s3Client.PutObjectFromS3(image));
         comment.images = await Promise.all(promises);
       }
       return comment;
     }
     public async getUrl(comment: PostDTO): Promise<PostDTO>{
       if(comment.images.length != 0){
-        const promises = comment.images.map(image => GetObjectFromS3(image));
+        const promises = comment.images.map(image => this.s3Client.GetObjectFromS3(image));
         comment.images = await Promise.all(promises);
       }
         return comment;
@@ -57,7 +57,7 @@ export class CommentServiceImpl implements CommentService{
     public async getUrlsArray(comments: PostDTO[]): Promise<PostDTO[]>{
       for (const comment of comments) { 
         if(comment.images.length != 0){
-          const promises = comment.images.map(image => GetObjectFromS3(image));
+          const promises = comment.images.map(image => this.s3Client.GetObjectFromS3(image));
           comment.images = await Promise.all(promises);
         }
       }
@@ -68,7 +68,7 @@ export class CommentServiceImpl implements CommentService{
         const author = await this.userRepository.getById(comment.authorId);
         if(author == null) throw new NotFoundException(`AUTHOR_NOT_EXITS_ID:${comment.authorId}`);
         if(author.image != null){
-          const url = await GetObjectFromS3(author.image);
+          const url = await this.s3Client.GetObjectFromS3(author.image);
           if(!url)throw new NotFoundException('url')
             author.image = url;
         }

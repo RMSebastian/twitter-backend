@@ -5,7 +5,6 @@ import { ExtendedPostDTO, PostDTO } from "@domains/post/dto";
 import { ReactionRepositoryImplMock } from "@domains/reaction";
 import { UserRepositoryImplMock } from "@domains/user/repository";
 import { CursorPagination } from "@types";
-import { GetObjectFromS3 } from "@utils/s3.aws";
 
 const commentRepository = new CommentRepositoryImplMock();
 const followRepository = new FollowerRepositoryImplMock();

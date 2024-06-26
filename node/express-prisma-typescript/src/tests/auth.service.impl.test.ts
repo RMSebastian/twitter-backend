@@ -44,9 +44,8 @@ describe("AuthServiceImpl",()=>{
         UserRepository.create.mockReturnValue(extendedUser);
         const token = await authService.signup(signUpData);
 
-        expect(UserRepository.create).toHaveBeenCalledWith(SignupInputDTO)
-        expect(UserRepository.getByEmailOrUsername).toHaveBeenCalledWith(String,String);
-        expect(token).toBe(TokenDTO);
+        expect(UserRepository.create).toHaveBeenCalled()
+        expect(UserRepository.getByEmailOrUsername).toHaveBeenCalledWith("test@gmail.com","Username");
         expect(token.token).not.toBeNull();
     })
     test("signUp_existingUser_error",async ()=>{

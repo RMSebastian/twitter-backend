@@ -14,7 +14,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
-      - run: cd node/express-prisma-typescript
-      - run: yarn install --frozen-lockfile
-      - run: yarn build --if-present
-      - run: yarn test
+
+      - run: |
+              cd node/express-prisma-typescript
+              yarn install --frozen-lockfile
+              yarn build --if-present
+              yarn test

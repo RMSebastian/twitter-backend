@@ -1,0 +1,19 @@
+name: Tesing CI #doesn't matter the name
+
+on: [push,pull_request]
+
+jobs:
+
+  build: #doens't matter the name
+
+    runs-on: ubuntu-latest
+
+    steps: #List of steps separed by -
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test

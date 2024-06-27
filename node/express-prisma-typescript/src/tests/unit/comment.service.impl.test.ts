@@ -2,7 +2,7 @@ import { S3ServiceImplMock } from "@aws/service";
 import { CommentRepositoryImplMock } from "@domains/comment/repository";
 import { CommentServiceImpl } from "@domains/comment/service";
 import { FollowerRepositoryImplMock } from "@domains/follower";
-import { ExtendedPostDTO, PostDTO } from "@domains/post/dto";
+import { PostDTO } from "@domains/post/dto";
 import { ReactionRepositoryImplMock } from "@domains/reaction";
 import { UserDTO } from "@domains/user/dto";
 import { UserRepositoryImplMock } from "@domains/user/repository";

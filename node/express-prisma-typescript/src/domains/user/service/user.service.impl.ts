@@ -29,7 +29,6 @@ export class UserServiceImpl implements UserService {
   async updateUser(userId: string, data: UpdateUserInputDTO): Promise<UserDTO>{
     if(data.image)data.image = `user/${userId}/${Date.now()}/${data.image}`; //
     const user = await this.userRepository.update(userId,data);
-    if (!user) throw new NotFoundException('user');
     const userWithUrl = await this.putUrl(user);
     return userWithUrl;
   }
@@ -66,7 +65,7 @@ export class UserServiceImpl implements UserService {
     }
     return user;
   }
-  private async getUrlsArray(users: UserDTO[]): Promise<UserDTO[]>{
+  private async getUrlsArray(users: UserDTO[]): Promise<UserDTO[]>{    
     for (const user of users) { 
       if(user.image != null){
         const url = await this.s3Client.GetObjectFromS3(user.image);

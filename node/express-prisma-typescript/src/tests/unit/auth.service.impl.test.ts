@@ -7,13 +7,13 @@ const userRepository = new UserRepositoryImplMock();
 
 const authService = new AuthServiceImpl(userRepository);
 
-const signUpData: any = {
+const signUpData = {
     email: "test@gmail.com",
     username: "Username",
     password: "PasswordN#1",
 };
 
-const logInData: any = {
+const logInData = {
     email: "test@gmail.com",
     username: "Username",
     password: "PasswordN#1",

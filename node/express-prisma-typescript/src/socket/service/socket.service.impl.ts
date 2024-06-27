@@ -20,8 +20,8 @@ export class SocketServiceImpl implements SocketService{
 
         const friendship = await this.followRepository.getRelationshipOfUsers(userId,otherUserId)
         if(!friendship) return null;
-        
-        return await this.socketRepository.createChat(userId,otherUserId);
+        const chat = await this.socketRepository.createChat(userId,otherUserId);
+        return chat
     }
     async recoverChats(userId: string): Promise<UserDTO[]> {
         return await this.followRepository.getRelationshipsByUserId(userId);

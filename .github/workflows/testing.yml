@@ -18,5 +18,4 @@ jobs:
       - run: |
               cd node/express-prisma-typescript
               yarn install --frozen-lockfile
-              yarn build --if-present
               yarn test

@@ -38,9 +38,7 @@ export function SetupSocketIO(io: Server){
 
         const {userId} = socket.decoded;
 
-        const {otherUserId}= data;
-
-        const chat = await service.createChat(userId, otherUserId);
+        const chat = await service.createChat(userId, data);
         
         if(chat != null){
           socket.join(chat.id);
@@ -64,7 +62,7 @@ export function SetupSocketIO(io: Server){
 
         const {chatId, content} = data;
 
-        const message = await service.createMessage(userId,chatId,content);
+        const message = await service.createMessage(userId,data);
 
         const json = JSON.stringify(message)
         if(message != null){

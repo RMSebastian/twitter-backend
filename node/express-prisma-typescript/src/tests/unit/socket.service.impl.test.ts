@@ -1,6 +1,6 @@
 import { FollowerRepositoryImplMock } from "@domains/follower";
 import { UserDTO } from "@domains/user/dto";
-import { MessageDTO,ChatDTO } from "@socket/dto";
+import { MessageDTO,ChatDTO, CreateRoomInputDTO } from "@socket/dto";
 import { UserRepositoryImplMock } from "@domains/user/repository";
 import { SocketRepositoryImplMock } from "@socket/repository";
 import { SocketServiceImpl } from "@socket/service";
@@ -17,6 +17,13 @@ const userDto = new UserDTO({
     name: null,
     username: "Username"
 },)
+const createRoomData= {
+    otherUserId: "OtherUserId"
+}
+const createMessageData= {
+    chatId: "chatId",
+    content: "content"
+}
 const otherUserDto = new UserDTO({
     id: "OtherUserId",
     biography: null,
@@ -62,12 +69,12 @@ describe("SocketServiceImpl",()=>{
         followRepository.getRelationshipOfUsers.mockResolvedValue(true);
         socketRepository.createChat.mockResolvedValue(newChatDto)
 
-        const chat = await socketService.createChat(userDto.id, otherUserDto.id);
+        const chat = await socketService.createChat(userDto.id, createRoomData);
 
-        expect(userRepository.getById).toHaveBeenCalledWith(otherUserDto.id);
-        expect(socketRepository.getChatByUsers).toHaveBeenCalledWith(userDto.id, otherUserDto.id);
-        expect(followRepository.getRelationshipOfUsers).toHaveBeenCalledWith(userDto.id, otherUserDto.id);
-        expect(socketRepository.createChat).toHaveBeenCalledWith(userDto.id, otherUserDto.id);
+        expect(userRepository.getById).toHaveBeenCalledWith(createRoomData.otherUserId);
+        expect(socketRepository.getChatByUsers).toHaveBeenCalledWith(userDto.id, createRoomData.otherUserId);
+        expect(followRepository.getRelationshipOfUsers).toHaveBeenCalledWith(userDto.id, createRoomData.otherUserId);
+        expect(socketRepository.createChat).toHaveBeenCalledWith(userDto.id, createRoomData.otherUserId);
         expect(chat).toBeInstanceOf(ChatDTO);
         expect(chat).not.toBeNull();
     });
@@ -75,10 +82,10 @@ describe("SocketServiceImpl",()=>{
         userRepository.getById.mockResolvedValue(otherUserDto);
         socketRepository.getChatByUsers.mockResolvedValue(chatDto);
     
-        const chat = await socketService.createChat(userDto.id, otherUserDto.id);
+        const chat = await socketService.createChat(userDto.id, createRoomData);
     
-        expect(userRepository.getById).toHaveBeenCalledWith(otherUserDto.id);
-        expect(socketRepository.getChatByUsers).toHaveBeenCalledWith(userDto.id, otherUserDto.id);
+        expect(userRepository.getById).toHaveBeenCalledWith(createRoomData.otherUserId);
+        expect(socketRepository.getChatByUsers).toHaveBeenCalledWith(userDto.id, createRoomData.otherUserId);
         expect(socketRepository.createChat).not.toHaveBeenCalled();
         expect(chat).toBeInstanceOf(ChatDTO);
         expect(chat).not.toBeNull();
@@ -86,9 +93,9 @@ describe("SocketServiceImpl",()=>{
     test("createChat_failure_noOtherUser", async () => {
         userRepository.getById.mockResolvedValue(null);
 
-        const chat = await socketService.createChat(userDto.id, otherUserDto.id);
+        const chat = await socketService.createChat(userDto.id, createRoomData);
 
-        expect(userRepository.getById).toHaveBeenCalledWith(otherUserDto.id);
+        expect(userRepository.getById).toHaveBeenCalledWith(createRoomData.otherUserId);
         expect(socketRepository.getChatByUsers).not.toHaveBeenCalled();
         expect(followRepository.getRelationshipOfUsers).not.toHaveBeenCalled();
         expect(socketRepository.createChat).not.toHaveBeenCalled();
@@ -100,11 +107,11 @@ describe("SocketServiceImpl",()=>{
         socketRepository.getChatByUsers.mockResolvedValue(null);
         followRepository.getRelationshipOfUsers.mockResolvedValue(null);
 
-        const chat = await socketService.createChat(userDto.id, otherUserDto.id);
+        const chat = await socketService.createChat(userDto.id, createRoomData);
 
-        expect(userRepository.getById).toHaveBeenCalledWith(otherUserDto.id);
-        expect(socketRepository.getChatByUsers).toHaveBeenCalledWith(userDto.id, otherUserDto.id);
-        expect(followRepository.getRelationshipOfUsers).toHaveBeenCalledWith(userDto.id, otherUserDto.id);
+        expect(userRepository.getById).toHaveBeenCalledWith(createRoomData.otherUserId);
+        expect(socketRepository.getChatByUsers).toHaveBeenCalledWith(userDto.id, createRoomData.otherUserId);
+        expect(followRepository.getRelationshipOfUsers).toHaveBeenCalledWith(userDto.id, createRoomData.otherUserId);
         expect(socketRepository.createChat).not.toHaveBeenCalled();
         expect(chat).toBeNull();
     });
@@ -122,10 +129,10 @@ describe("SocketServiceImpl",()=>{
         socketRepository.getChatById.mockResolvedValue(chatDto);
         socketRepository.createMessage.mockResolvedValue(messageDto);
 
-        const message = await socketService.createMessage(userDto.id, chatDto.id, "Testing content");
+        const message = await socketService.createMessage(userDto.id, createMessageData);
 
-        expect(socketRepository.getChatById).toHaveBeenCalledWith(userDto.id, chatDto.id);
-        expect(socketRepository.createMessage).toHaveBeenCalledWith(userDto.id, chatDto.id, "Testing content");
+        expect(socketRepository.getChatById).toHaveBeenCalledWith(userDto.id, createMessageData.chatId);
+        expect(socketRepository.createMessage).toHaveBeenCalledWith(userDto.id,createMessageData.chatId, createMessageData.content);
         expect(message).toBeInstanceOf(MessageDTO);
         expect(message).not.toBeNull();
     });
@@ -133,9 +140,9 @@ describe("SocketServiceImpl",()=>{
     test("createMessage_failure_noChat", async () => {
         socketRepository.getChatById.mockResolvedValue(null);
 
-        const message = await socketService.createMessage(userDto.id, chatDto.id, "Testing content");
+        const message = await socketService.createMessage(userDto.id, createMessageData);
 
-        expect(socketRepository.getChatById).toHaveBeenCalledWith(userDto.id, chatDto.id);
+        expect(socketRepository.getChatById).toHaveBeenCalledWith(userDto.id, createMessageData.chatId);
         expect(socketRepository.createMessage).not.toHaveBeenCalled();
         expect(message).toBeNull();
     });

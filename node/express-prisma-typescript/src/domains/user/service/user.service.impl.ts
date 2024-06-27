@@ -45,8 +45,13 @@ export class UserServiceImpl implements UserService {
     return userWithUrl.map(user => new UserViewDTO(user))
   }
 
-  async deleteUser (userId: any): Promise<void> {
-    await this.userRepository.delete(userId)
+  async deleteUser (userId: string): Promise<void> {
+    const user = await this.userRepository.getById(userId)
+    if (!user){
+      throw new NotFoundException('user')
+    } else{
+      await this.userRepository.delete(userId)
+    }
   }
 
   private async putUrl(user: UserDTO): Promise<UserDTO>{

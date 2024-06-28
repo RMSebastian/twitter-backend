@@ -91,10 +91,10 @@ authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, re
  * @swagger
  * components:
  *  securitySchemes:
- *    apiKey:
- *      type: apiKey
- *      name: Authorization
- *      in: header
+ *    BearerAuth:
+ *      type: http
+ *      scheme: bearer
+ *      bearerFormat: JWT
  */
 /**
  * @swagger

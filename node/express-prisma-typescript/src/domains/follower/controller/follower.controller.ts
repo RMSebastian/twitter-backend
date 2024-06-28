@@ -19,7 +19,7 @@ const service: FollowerService = new FollowerServiceImpl(new FollowerRepositoryI
  * /api/follower/follow/{userId}:
  *   post:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Follow a user
  *     description: Follow another user.
  *     tags: [follower]
@@ -59,7 +59,7 @@ followerRouter.post("/follow/:userId",async (req: Request,res: Response)=>{
  * /api/follower/unfollow/{userId}:
  *   post:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Unfollow a user
  *     description: Unfollow another user.
  *     tags: [follower]

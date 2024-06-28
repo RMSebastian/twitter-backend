@@ -26,7 +26,7 @@ const service: CommentService = new CommentServiceImpl(
  * /api/comment/me:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Get comments by user id
  *     description: Retrieve comments created by a specific user.
  *     tags: [comment]
@@ -79,7 +79,7 @@ const service: CommentService = new CommentServiceImpl(
  * /api/comment/by_post/{postId}:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Get comments by post id
  *     tags: [comment]
  *     parameters:
@@ -134,7 +134,7 @@ commentRouter.get('/by_post/:postId', async (req: Request, res: Response) => {
  * /api/comment/by_user/{userId}:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Get comments by user id
  *     description: Retrieve comments created by a specific user.
  *     tags: [comment]
@@ -190,7 +190,7 @@ commentRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
  * /api/comment/{postId}:
  *   post:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Create a comment
  *     tags: [comment]
  *     requestBody:
@@ -236,7 +236,7 @@ commentRouter.post('/:postId',BodyValidation(CreatePostInputDTO), async (req: Re
  * /api/comment/{postId}:
  *   delete:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Remove the comment by id
  *     tags: [comment]
  *     parameters:

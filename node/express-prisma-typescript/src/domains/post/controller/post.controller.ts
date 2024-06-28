@@ -34,7 +34,7 @@ new S3ServiceImpl(s3Client)
  * /api/post/:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Get posts
  *     tags: [post]
  *     parameters:
@@ -82,7 +82,7 @@ postRouter.get('/', async (req: Request, res: Response) => {
  * /api/post/{postId}:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Get post by id
  *     tags: [post]
  *     parameters:
@@ -119,7 +119,7 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
  * /api/post/by_user/{userId}:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Get posts by user
  *     description: Retrieve posts created by a specific user.
  *     tags: [post]
@@ -159,7 +159,7 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
  * /api/post/:
  *   post:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Create a posts
  *     tags: [post]
  *     requestBody:
@@ -197,7 +197,7 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
  * /api/post/{postId}:
  *   delete:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Remove the post by id
  *     tags: [post]
  *     parameters:

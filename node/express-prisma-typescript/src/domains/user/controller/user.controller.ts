@@ -29,7 +29,7 @@ const service: UserService = new UserServiceImpl(
  * /api/user/:
  *  get:
  *    security:
- *        - apiKey: []
+ *        - BearerAuth: []
  *    summary: "Get a list of all users"
  *    tags: [user]
  *    description: get a list of all user recommendations paginated according the user that sends it
@@ -73,7 +73,7 @@ userRouter.get('/', async (req: Request, res: Response) => {
  * /api/user/me:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Get my user info
  *     tags: [user]
  *     responses:
@@ -101,7 +101,7 @@ userRouter.get('/me', async (req: Request, res: Response) => {
  * /api/user/{userId}:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: "Get user by id"
  *     tags: [user]
  *     parameters:
@@ -137,7 +137,7 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
  * /api/user/by_username/{username}:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: "Get users by username"
  *     tags: [user]
  *     parameters:
@@ -186,7 +186,7 @@ userRouter.get('/by_username/:username', async (req: Request, res: Response)=>{
  * /api/user/:
  *   delete:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Remove current users
  *     tags: [user]
  *     responses:
@@ -207,7 +207,7 @@ userRouter.delete('/', async (req: Request, res: Response) => {
  * /api/user/update/{userId}:
  *   post:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: update a user
  *     tags: [user]
  *     requestBody:

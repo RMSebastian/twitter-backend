@@ -21,7 +21,7 @@ const service: ReactionService = new ReactionServiceImpl(new ReactionRepositoryI
  * /api/reaction/{postId}:
  *   post:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Add a reaction to a post by postId
  *     tags: [reaction]
  *     requestBody:
@@ -61,7 +61,7 @@ reactionRouter.post("/:postId", BodyValidation(CreateReactionInputDTO),async (re
  * /api/reaction/{postId}:
  *   delete:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Remove the reaction from post by postId
  *     tags: [reaction]
  *     parameters:
@@ -91,7 +91,7 @@ reactionRouter.delete("/:postId", BodyValidation(CreateReactionInputDTO),async (
  * /api/reaction/{action}/{userId}:
  *   get:
  *     security:
- *         - apiKey: []
+ *         - BearerAuth: []
  *     summary: Look for post with certain reactions
  *     tags: [reaction]
  *     parameters:

@@ -1,6 +1,6 @@
-import { SocketRepository } from "./socket.repository";
+import { ChatRepository } from "./chat.repository";
 
-export class SocketRepositoryImplMock implements SocketRepository{
+export class ChatRepositoryImplMock implements ChatRepository{
     createChat = jest.fn()
     getChatByUsers = jest.fn()
     recoverChats = jest.fn()

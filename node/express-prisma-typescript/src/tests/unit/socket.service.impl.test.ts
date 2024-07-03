@@ -2,13 +2,13 @@ import { FollowerRepositoryImplMock } from "@domains/follower";
 import { UserDTO } from "@domains/user/dto";
 import { MessageDTO,ChatDTO, CreateRoomInputDTO } from "@socket/dto";
 import { UserRepositoryImplMock } from "@domains/user/repository";
-import { SocketRepositoryImplMock } from "@socket/repository";
+import { ChatRepositoryImplMock } from "@socket/repository";
 import { SocketServiceImpl } from "@socket/service";
 
 
 const followRepository = new FollowerRepositoryImplMock();
 const userRepository = new UserRepositoryImplMock();
-const socketRepository = new SocketRepositoryImplMock();
+const socketRepository = new ChatRepositoryImplMock();
 const userDto = new UserDTO({
     id: "UserId",
     biography: null,

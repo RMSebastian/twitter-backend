@@ -53,6 +53,12 @@ export class PostServiceImpl implements PostService {
   }
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {    
+    if(userId == authorId)
+    {
+      const posts = await this.postRepository.getByAuthorId(authorId)
+      const postWithUrl = await this.getUrlsArray(posts);
+      return await this.ExtendPosts(postWithUrl)
+    }
     const userPrivacy = await this.userRepository.getPrivacyById(authorId);
     if (userPrivacy == null) {
       throw new NotFoundException('user')

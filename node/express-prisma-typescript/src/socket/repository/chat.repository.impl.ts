@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { SocketRepository } from "./socket.repository";
+import { ChatRepository } from "./chat.repository";
 import { ChatDTO, MessageDTO } from "@socket/dto";
 
-export class SocketRepositoryImpl implements SocketRepository{
+export class ChatRepositoryImpl implements ChatRepository{
     constructor(private readonly db: PrismaClient){}
 
     async createChat(userId: string, otherUserId: string): Promise<ChatDTO> {

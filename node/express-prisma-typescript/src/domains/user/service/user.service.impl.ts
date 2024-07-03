@@ -17,13 +17,15 @@ export class UserServiceImpl implements UserService {
     const user = await this.userRepository.getById(otherUserId)
     if (!user) throw new NotFoundException('user')
     const bool = await (async ()=>{
-      if(userId == otherUserId) return undefined;  
+      if(userId == otherUserId) return null;  
       else return (await this.followRepository.getFollowId(userId,otherUserId) != null)?true:false;
     })();
     const userWithUrl = await this.getUrl(user);
     const userView = new UserViewDTO(userWithUrl);
-    const extendedUser = new ExtendedUserViewDTO(userView);
-    extendedUser.follow = bool
+    const extendedUser = new ExtendedUserViewDTO({
+      ...userView,
+      follow: bool
+    });
     return extendedUser;
   }
   async updateUser(userId: string, data: UpdateUserInputDTO): Promise<UserDTO>{

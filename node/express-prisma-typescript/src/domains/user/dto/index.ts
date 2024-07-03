@@ -45,8 +45,9 @@ export class UserViewDTO {
 export class ExtendedUserViewDTO extends UserViewDTO{
   constructor (user: ExtendedUserViewDTO) {
     super(user)
+    this.follow = user.follow;
   }
-  follow?: boolean;
+  follow: boolean | null;
 }
 export class UpdateUserInputDTO {
   @IsOptional()

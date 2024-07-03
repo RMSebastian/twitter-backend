@@ -1,6 +1,6 @@
 import { SocketService } from ".";
 import { FollowerRepository } from "@domains/follower";
-import { SocketRepository } from "@socket/repository";
+import { ChatRepository } from "@socket/repository";
 import { ChatDTO, CreateMessageInputDTO, CreateRoomInputDTO, MessageDTO } from "@socket/dto";
 import { UserDTO } from "@domains/user/dto";
 import { UserRepository } from "@domains/user/repository";
@@ -8,7 +8,7 @@ import { UserRepository } from "@domains/user/repository";
 export class SocketServiceImpl implements SocketService{
     constructor (
         private readonly followRepository: FollowerRepository,
-        private readonly socketRepository: SocketRepository,
+        private readonly socketRepository: ChatRepository,
         private readonly userRepository: UserRepository,
     ){}
     async createChat(userId: string,data: CreateRoomInputDTO): Promise<ChatDTO | null> {

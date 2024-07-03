@@ -7,9 +7,13 @@ import { UserRepository } from './user.repository'
 export class UserRepositoryImpl implements UserRepository {
   constructor (private readonly db: PrismaClient) {}
   
-  async create (data: SignupInputDTO): Promise<UserDTO> {    
+  async create (data: SignupInputDTO): Promise<UserDTO> {   
+ 
     const user = await this.db.user.create({
-      data
+      data:{
+        ...data,
+        name: data.username
+      }
     })
 
     return new UserDTO(user);

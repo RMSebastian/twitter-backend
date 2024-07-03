@@ -2,14 +2,14 @@ import { SocketBodyValidation, db, withAuthSocket } from '@utils'
 import { Server } from 'socket.io';
 import { SocketService, SocketServiceImpl } from '@socket/service';
 import { FollowerRepositoryImpl } from '@domains/follower';
-import { SocketRepositoryImpl } from '@socket/repository';
+import { ChatRepositoryImpl } from '@socket/repository';
 import { CreateMessageInputDTO, CreateRoomInputDTO } from '@socket/dto';
 
 import { UserRepositoryImpl } from '@domains/user/repository';
 
 const service: SocketService = new SocketServiceImpl(
   new FollowerRepositoryImpl(db),
-  new SocketRepositoryImpl(db),
+  new ChatRepositoryImpl(db),
   new UserRepositoryImpl(db)
 );
 export function SetupSocketIO(io: Server){

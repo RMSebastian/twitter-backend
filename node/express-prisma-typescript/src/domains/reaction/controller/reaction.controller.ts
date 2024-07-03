@@ -64,6 +64,12 @@ reactionRouter.post("/:postId", BodyValidation(CreateReactionInputDTO),async (re
  *         - BearerAuth: []
  *     summary: Remove the reaction from post by postId
  *     tags: [reaction]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateReactionInputDTO'
  *     parameters:
  *       - in: path
  *         name: postId

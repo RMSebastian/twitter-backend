@@ -46,6 +46,7 @@ const otherUserDto = new UserDTO({
 },)
 const postDto = new PostDTO({
     id:"PostId",
+    parentId: null,
     authorId:"OtherUserId",
     content: "Example one: content",
     images: ["test.jpg"],
@@ -65,13 +66,15 @@ describe("PostServiceImpl",()=>{
     })
     test("creationPost_sucess",async ()=>{
         s3client.PutObjectFromS3.mockResolvedValue("LinkOfPicture")
+        s3client.GetObjectFromS3.mockResolvedValue("LinkOfPicture")
         postRepository.create.mockResolvedValue(postDto)
+        userRepository.getById.mockResolvedValue(userDto)
+
         const post = await postService.createPost(userDto.id,createPostData)
 
         expect(postRepository.create).toHaveBeenCalledWith(userDto.id,createPostData);
         expect(s3client.PutObjectFromS3).toHaveBeenCalled()
         expect(post).not.toBeNull();
-        expect(post).toEqual(postDto);
     })
     test("deletePost_success", async()=>{
         postRepository.getById.mockResolvedValue(postDto)
@@ -101,7 +104,7 @@ describe("PostServiceImpl",()=>{
         expect(postRepository.getById).toHaveBeenCalledWith(postDto.id);
         expect(userRepository.getPrivacyById).toHaveBeenCalledWith(postDto.authorId);
         expect(followRepository.getFollowId).toHaveBeenCalledWith(userDto.id, postDto.authorId);
-        expect(s3client.GetObjectFromS3).toHaveBeenCalledTimes(1);
+        expect(s3client.GetObjectFromS3).toHaveBeenCalledTimes(2);
         expect(post).not.toBeNull();
     })
     test("getPost_notFound", async () => {

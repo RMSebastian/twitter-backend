@@ -18,11 +18,11 @@ export class PostServiceImpl implements PostService {
     private readonly s3Client: S3Service
   ) {}
 
-  async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
+  async createPost (userId: string, data: CreatePostInputDTO): Promise<ExtendedPostDTO> {
     if(data.images)data.images = data.images.map((image, index) => `post/${userId}/${index}/${Date.now()}/${image}`);
     const post = await this.postRepository.create(userId, data);
     const postWithUrl = await this.putUrl(post);
-    return postWithUrl;
+    return await this.ExtendPost(postWithUrl)
   }
   async deletePost (userId: string, postId: string): Promise<void> {
     const post = await this.postRepository.getById(postId)
@@ -31,7 +31,7 @@ export class PostServiceImpl implements PostService {
     await this.postRepository.delete(postId)
   }
 
-  async getPost (userId: string, postId: string): Promise<PostDTO> {
+  async getPost (userId: string, postId: string): Promise<ExtendedPostDTO> {
     
     const post = await this.postRepository.getById(postId)
     if (!post) throw new NotFoundException('post');
@@ -42,7 +42,8 @@ export class PostServiceImpl implements PostService {
       if(!follow) throw new NotFoundException("follow");
     }
     const postWithUrl = await this.getUrl(post);
-    return postWithUrl;
+    const extendedPost = await this.ExtendPost(postWithUrl)
+    return extendedPost;
   }
 
   async getLatestPosts (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
@@ -76,14 +77,16 @@ export class PostServiceImpl implements PostService {
       const promises = post.images.map(image => this.s3Client.PutObjectFromS3(image));
       post.images = await Promise.all(promises);
     }
-    return post;
+    return post
   }
   public async getUrl(post: PostDTO): Promise<PostDTO>{
     if(post.images.length != 0){
-      const promises = post.images.map(image => this.s3Client.GetObjectFromS3(image));
+      const promises = post.images.map(image => {
+        return this.s3Client.GetObjectFromS3(image)
+      });
       post.images = await Promise.all(promises);
     }
-    return post;
+    return await post
   }
   public async getUrlsArray(posts: PostDTO[]): Promise<PostDTO[]>{
     for (const post of posts) { 
@@ -92,8 +95,34 @@ export class PostServiceImpl implements PostService {
         post.images = await Promise.all(promises);
       }
     }
-    return posts;
+    return await posts
   }
+  private async ExtendPost(post: PostDTO):Promise<ExtendedPostDTO>{
+      const author = await this.userRepository.getById(post.authorId);
+      if(author == null) throw new NotFoundException(`AUTHOR_NOT_EXITS_ID:${post.authorId}`);
+      if(author.image != null){
+        const url = await this.s3Client.GetObjectFromS3(author.image);
+        if(!url)throw new NotFoundException('url')
+          author.image = url;
+      }
+      const qtyComments = await  this.postRepository.getCountByPostId(post.id);
+      const qtyLikes = await this.reactionRepository.getCountByPostId(post.id,ReactionType.Like);
+      const qtyRetweets = await this.reactionRepository.getCountByPostId(post.id,ReactionType.Retweet);
+
+      return new ExtendedPostDTO({
+        id: post.id,
+        parentId: post.parentId,
+        authorId: post.authorId,
+        content: post.content,
+        images: post.images,
+        createdAt: post.createdAt,
+        author: author,
+        qtyComments:qtyComments,
+        qtyLikes:qtyLikes,
+        qtyRetweets:qtyRetweets,
+      });
+    };
+  
   private async ExtendPosts(posts: PostDTO[]):Promise<ExtendedPostDTO[]>{
     const extendedPosts = await Promise.all(posts.map(async (post) =>{
       const author = await this.userRepository.getById(post.authorId);
@@ -109,6 +138,7 @@ export class PostServiceImpl implements PostService {
 
       return new ExtendedPostDTO({
         id: post.id,
+        parentId: post.parentId,
         authorId: post.authorId,
         content: post.content,
         images: post.images,

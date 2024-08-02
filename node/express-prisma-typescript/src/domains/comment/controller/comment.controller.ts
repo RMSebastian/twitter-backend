@@ -54,7 +54,7 @@ const service: CommentService = new CommentServiceImpl(
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/PostDTO'
+ *                 $ref: '#/components/schemas/ExtendedPostDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -112,7 +112,7 @@ const service: CommentService = new CommentServiceImpl(
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/PostDTO'
+ *                 $ref: '#/components/schemas/ExtendedPostDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -168,7 +168,7 @@ commentRouter.get('/by_post/:postId', async (req: Request, res: Response) => {
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/PostDTO'
+ *                 $ref: '#/components/schemas/ExtendedPostDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -199,13 +199,6 @@ commentRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/CreatePostInputDTO'
- *     parameters:
- *       - in: path
- *         name: postId
- *         schema:
- *           type: string
- *         required: true
- *         description: The post id
  *     responses:
  *       2XX:
  *         description: Comment created
@@ -214,7 +207,7 @@ commentRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/PostDTO'
+ *                 $ref: '#/components/schemas/ExtendedPostDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -224,10 +217,14 @@ commentRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
  */
 commentRouter.post('/:postId',BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
     const { userId } = res.locals.context
-    const { postId } = req.params
     const data = req.body
-  
-    const comment = await service.createComment(userId, data ,postId);
+
+    if(data.parentId == null){
+      const { postId } = req.params
+      data.parentId = postId;
+    }  
+
+    const comment = await service.createComment(userId, data);
   
     return res.status(HttpStatus.OK).json(comment)
 })

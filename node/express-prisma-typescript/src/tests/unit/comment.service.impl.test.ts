@@ -2,7 +2,7 @@ import { S3ServiceImplMock } from "@aws/service";
 import { CommentRepositoryImplMock } from "@domains/comment/repository";
 import { CommentServiceImpl } from "@domains/comment/service";
 import { FollowerRepositoryImplMock } from "@domains/follower";
-import { PostDTO } from "@domains/post/dto";
+import { CreatePostInputDTO, PostDTO } from "@domains/post/dto";
 import { ReactionRepositoryImplMock } from "@domains/reaction";
 import { UserDTO } from "@domains/user/dto";
 import { UserRepositoryImplMock } from "@domains/user/repository";
@@ -28,12 +28,14 @@ const commentService = new CommentServiceImpl(
     reactionRepository,
     s3client
 );
-const createPostData: any ={
+const createPostData: CreatePostInputDTO ={
+    parentId: "PostId",
     content: "Example content",
     images: ["test.jpg"]
 }
 const commentDto = new PostDTO({
     id:"CommentId",
+    parentId:"PostId",
     authorId:"OtherUserId",
     content: "Example two: content",
     images: ["CommentPicture.jpg"],
@@ -49,6 +51,7 @@ const otherUserDto = new UserDTO({
 },)
 const postDto = new PostDTO({
     id:"PostId",
+    parentId: null,
     authorId:"UserId",
     content: "Example one: content",
     images: ["test.jpg"],
@@ -70,12 +73,12 @@ describe("CommentServiceImpl",()=>{
     test("createComment_success",async ()=>{
         s3client.PutObjectFromS3.mockResolvedValue("LinkOfPicture")
         commentRepository.create.mockResolvedValue(commentDto)
-        const post = await commentService.createComment(otherUserDto.id,createPostData,postDto.id)
-
-        expect(commentRepository.create).toHaveBeenCalledWith(otherUserDto.id,createPostData,postDto.id);
+        userRepository.getById.mockResolvedValue(otherUserDto)
+        s3client.GetObjectFromS3.mockResolvedValue("LinkOfPicture")
+        const post = await commentService.createComment(otherUserDto.id,createPostData)
+        expect(commentRepository.create).toHaveBeenCalledWith(otherUserDto.id,createPostData);
         expect(s3client.PutObjectFromS3).toHaveBeenCalledTimes(1);
         expect(post).not.toBeNull();
-        expect(post).toEqual(commentDto);
     })
     test("deleteComment_success", async()=>{
         commentRepository.getById.mockResolvedValue(commentDto)

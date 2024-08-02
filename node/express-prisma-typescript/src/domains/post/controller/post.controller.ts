@@ -98,7 +98,7 @@ postRouter.get('/', async (req: Request, res: Response) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/PostDTO'
+ *               $ref: '#/components/schemas/ExtendedPostDTO'
  *       4XX:
  *         description: Error with the request
  *         content:
@@ -187,7 +187,7 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
 postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const data = req.body
-
+  data.parentId = null;
   const post = await service.createPost(userId, data)
 
   return res.status(HttpStatus.CREATED).json(post)
@@ -287,6 +287,9 @@ postRouter.delete('/:postId', async (req: Request, res: Response) => {
  *        - content
  *        - images
  *      properties:
+ *        parentId:
+ *          type: string
+ *          description: Post id (for comments)
  *        content:
  *          type: string
  *          description: Post content

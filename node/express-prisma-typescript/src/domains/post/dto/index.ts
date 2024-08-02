@@ -3,6 +3,10 @@ import { UserDTO } from '@domains/user/dto'
 
 export class CreatePostInputDTO {
   @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  parentId?: string | null;
+  @IsString()
   @IsNotEmpty()
   @MaxLength(240)
     content!: string
@@ -19,9 +23,11 @@ export class PostDTO {
     this.content = post.content
     this.images = post.images
     this.createdAt = post.createdAt
+    this.parentId = post.parentId
   }
 
   id: string
+  parentId: string | null
   authorId: string
   content: string
   images: string[]

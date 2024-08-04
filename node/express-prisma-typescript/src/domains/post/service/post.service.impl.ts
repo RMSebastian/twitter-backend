@@ -5,16 +5,14 @@ import { ForbiddenException, NotFoundException } from '@utils'
 import { CursorPagination } from '@types'
 import { UserRepository } from '@domains/user/repository'
 import { FollowerRepository } from '@domains/follower/repository'
-import { ReactionRepository } from '@domains/reaction'
-import { ReactionType } from '@prisma/client'
 import { S3Service } from '@aws/service'
+
 
 export class PostServiceImpl implements PostService {
   constructor (
     private readonly postRepository: PostRepository,
     private readonly followRepository: FollowerRepository,
     private readonly userRepository: UserRepository,
-    private readonly reactionRepository: ReactionRepository,
     private readonly s3Client: S3Service
   ) {}
 
@@ -22,8 +20,9 @@ export class PostServiceImpl implements PostService {
     if(data.images)data.images = data.images.map((image, index) => `post/${userId}/${index}/${Date.now()}/${image}`);
     const post = await this.postRepository.create(userId, data);
     const postWithUrl = await this.putUrl(post);
-    return await this.ExtendPost(postWithUrl)
+    return postWithUrl
   }
+
   async deletePost (userId: string, postId: string): Promise<void> {
     const post = await this.postRepository.getById(postId)
     if (!post) throw new NotFoundException('post')
@@ -42,23 +41,33 @@ export class PostServiceImpl implements PostService {
       if(!follow) throw new NotFoundException("follow");
     }
     const postWithUrl = await this.getUrl(post);
-    const extendedPost = await this.ExtendPost(postWithUrl)
-    return extendedPost;
+    return postWithUrl;
   }
 
   async getLatestPosts (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const usersFilter = await this.followRepository.getFollowedIds(userId);
+    if(!userId)throw new NotFoundException("user");
     const posts = await this.postRepository.getAllByDatePaginated(usersFilter ,options);
-    const postWithUrl = await this.getUrlsArray(posts);
-    return await this.ExtendPosts(postWithUrl);
+    if(posts){
+      const postWithUrl = await this.getUrlsArray(posts);
+      return postWithUrl
+    }else{
+      return[]
+    }
+    
   }
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {    
     if(userId == authorId)
     {
       const posts = await this.postRepository.getByAuthorId(authorId)
-      const postWithUrl = await this.getUrlsArray(posts);
-      return await this.ExtendPosts(postWithUrl)
+      if(posts){
+        const postWithUrl = await this.getUrlsArray(posts);
+        return postWithUrl
+      }else{
+        return[]
+      }
+      
     }
     const userPrivacy = await this.userRepository.getPrivacyById(authorId);
     if (userPrivacy == null) {
@@ -69,17 +78,19 @@ export class PostServiceImpl implements PostService {
       if(!follow) throw new NotFoundException("follow");
     }
     const posts = await this.postRepository.getByAuthorId(authorId)
+
     const postWithUrl = await this.getUrlsArray(posts);
-    return await this.ExtendPosts(postWithUrl)
+    
+    return postWithUrl;
   }
-  public async putUrl(post: PostDTO): Promise<PostDTO>{
+  public async putUrl(post: ExtendedPostDTO): Promise<ExtendedPostDTO>{
     if(post.images.length != 0){
       const promises = post.images.map(image => this.s3Client.PutObjectFromS3(image));
       post.images = await Promise.all(promises);
     }
     return post
   }
-  public async getUrl(post: PostDTO): Promise<PostDTO>{
+  public async getUrl(post: ExtendedPostDTO): Promise<ExtendedPostDTO>{
     if(post.images.length != 0){
       const promises = post.images.map(image => {
         return this.s3Client.GetObjectFromS3(image)
@@ -88,68 +99,13 @@ export class PostServiceImpl implements PostService {
     }
     return await post
   }
-  public async getUrlsArray(posts: PostDTO[]): Promise<PostDTO[]>{
+  public async getUrlsArray(posts: ExtendedPostDTO[]): Promise<ExtendedPostDTO[]>{
     for (const post of posts) { 
       if(post.images.length != 0){
         const promises = post.images.map(image => this.s3Client.GetObjectFromS3(image));
         post.images = await Promise.all(promises);
       }
     }
-    return await posts
-  }
-  private async ExtendPost(post: PostDTO):Promise<ExtendedPostDTO>{
-      const author = await this.userRepository.getById(post.authorId);
-      if(author == null) throw new NotFoundException(`AUTHOR_NOT_EXITS_ID:${post.authorId}`);
-      if(author.image != null){
-        const url = await this.s3Client.GetObjectFromS3(author.image);
-        if(!url)throw new NotFoundException('url')
-          author.image = url;
-      }
-      const qtyComments = await  this.postRepository.getCountByPostId(post.id);
-      const qtyLikes = await this.reactionRepository.getCountByPostId(post.id,ReactionType.Like);
-      const qtyRetweets = await this.reactionRepository.getCountByPostId(post.id,ReactionType.Retweet);
-
-      return new ExtendedPostDTO({
-        id: post.id,
-        parentId: post.parentId,
-        authorId: post.authorId,
-        content: post.content,
-        images: post.images,
-        createdAt: post.createdAt,
-        author: author,
-        qtyComments:qtyComments,
-        qtyLikes:qtyLikes,
-        qtyRetweets:qtyRetweets,
-      });
-    };
-  
-  private async ExtendPosts(posts: PostDTO[]):Promise<ExtendedPostDTO[]>{
-    const extendedPosts = await Promise.all(posts.map(async (post) =>{
-      const author = await this.userRepository.getById(post.authorId);
-      if(author == null) throw new NotFoundException(`AUTHOR_NOT_EXITS_ID:${post.authorId}`);
-      if(author.image != null){
-        const url = await this.s3Client.GetObjectFromS3(author.image);
-        if(!url)throw new NotFoundException('url')
-          author.image = url;
-      }
-      const qtyComments = await  this.postRepository.getCountByPostId(post.id);
-      const qtyLikes = await this.reactionRepository.getCountByPostId(post.id,ReactionType.Like);
-      const qtyRetweets = await this.reactionRepository.getCountByPostId(post.id,ReactionType.Retweet);
-
-      return new ExtendedPostDTO({
-        id: post.id,
-        parentId: post.parentId,
-        authorId: post.authorId,
-        content: post.content,
-        images: post.images,
-        createdAt: post.createdAt,
-        author: author,
-        qtyComments:qtyComments,
-        qtyLikes:qtyLikes,
-        qtyRetweets:qtyRetweets,
-      });
-    }));
-
-    return extendedPosts;
+    return posts
   }
 }

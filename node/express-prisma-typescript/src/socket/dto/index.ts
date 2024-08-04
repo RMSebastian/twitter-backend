@@ -1,3 +1,4 @@
+import { UserViewDTO } from "@domains/user/dto";
 import { IsNotEmpty, IsString, IsUUID, MaxLength } from "class-validator";
 
 export class ChatDTO {
@@ -5,10 +6,10 @@ export class ChatDTO {
         this.id = chat.id;
         this.createdAt = chat.createdAt;
         this.messages = chat.messages;
-        this.usersId = chat.usersId
+        this.users = chat.users
     }
     id: string;
-    usersId: string[]
+    users: UserViewDTO[]
     messages: MessageDTO[]
     createdAt: Date;
 }
@@ -17,13 +18,15 @@ export class MessageDTO{
     constructor (message: MessageDTO) {
         this.id = message.id;
         this.chatId = message.chatId;
-        this.authorId = message.authorId;
+        this.senderId = message.senderId;
+        this.sender = message.sender;
         this.content = message.content;
         this.createdAt = message.createdAt;
     }
     id: string;
     chatId: string;
-    authorId: string;
+    sender: UserViewDTO
+    senderId: string;
     content: string
     createdAt: Date;
 }

@@ -12,14 +12,30 @@ import httpStatus from 'http-status'
 import { FollowerRepositoryImpl } from '@domains/follower'
 import { S3ServiceImpl } from '@aws/service'
 import { s3Client } from '@utils/s3client'
+import { PostRepositoryImpl } from '@domains/post/repository'
+import { ReactionRepositoryImpl } from '@domains/reaction'
+import { PostService, PostServiceImpl } from '@domains/post/service'
+import { CommentRepositoryImpl } from '@domains/comment/repository'
+import { CommentService, CommentServiceImpl } from '@domains/comment/service'
 
 export const userRouter = Router()
 
+const followRepository = new FollowerRepositoryImpl(db);
+const userRepository = new UserRepositoryImpl(db);
+const s3client = new S3ServiceImpl(s3Client);
+
+const postService: PostService = new PostServiceImpl(
+  new PostRepositoryImpl(db),
+  followRepository,
+  userRepository,
+  s3client
+  );
 // Use dependency injection
 const service: UserService = new UserServiceImpl(
-  new UserRepositoryImpl(db),
-  new FollowerRepositoryImpl(db),
-  new S3ServiceImpl(s3Client)
+  userRepository,
+  followRepository,
+  postService,
+  s3client,
 );
 /**
  * @swagger

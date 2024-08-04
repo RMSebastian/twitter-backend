@@ -4,21 +4,15 @@ import HttpStatus from 'http-status'
 import 'express-async-errors'
 import { CommentService, CommentServiceImpl } from '../service';
 import { BodyValidation, db } from '@utils';
-import { FollowerRepositoryImpl } from '@domains/follower';
-import { UserRepositoryImpl } from '@domains/user/repository';
 import { CreatePostInputDTO } from '@domains/post/dto';
 import { CommentRepositoryImpl } from '../repository';
-import { ReactionRepositoryImpl } from '@domains/reaction';
 import { S3ServiceImpl } from '@aws/service';
 import { s3Client } from '@utils/s3client';
 
 export const commentRouter = Router();
 
 const service: CommentService = new CommentServiceImpl(
-    new CommentRepositoryImpl(db), 
-    new FollowerRepositoryImpl(db), 
-    new UserRepositoryImpl(db),
-    new ReactionRepositoryImpl(db),
+    new CommentRepositoryImpl(db),
     new S3ServiceImpl(s3Client)
 );
 /**

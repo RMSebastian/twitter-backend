@@ -1,3 +1,4 @@
+import { ExtendedPostDTO } from "@domains/post/dto"
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator"
 
 export class UserDTO {
@@ -8,6 +9,7 @@ export class UserDTO {
     this.username = user.username
     this.image = user.image
     this.biography = user.biography;
+    this.isPrivate = user.isPrivate;
   }
 
   id: string
@@ -16,6 +18,7 @@ export class UserDTO {
   image: string | null;
   biography: string | null;
   createdAt: Date
+  isPrivate:boolean
 }
 
 export class ExtendedUserDTO extends UserDTO {
@@ -29,25 +32,33 @@ export class ExtendedUserDTO extends UserDTO {
   
   password!: string
 }
-export class UserViewDTO {
+export class UserViewDTO {//AuthorDTO en front
   constructor (user: UserViewDTO) {
     this.id = user.id
     this.name = user.name
     this.username = user.username
+    this.createdAt = user.createdAt
     this.image = user.image
+    this.isPrivate = user.isPrivate
   }
 
   id: string
   name: string | null
   username: string
   image: string | null
+  createdAt: Date
+  isPrivate:boolean
 }
-export class ExtendedUserViewDTO extends UserViewDTO{
+export class ExtendedUserViewDTO extends UserViewDTO{//UserDTO en front
   constructor (user: ExtendedUserViewDTO) {
     super(user)
-    this.follow = user.follow;
+    this.followers = user.followers;
+    this.following = user.following;
+    this.posts = user.posts;
   }
-  follow: boolean | null;
+  followers: UserViewDTO[];
+  following: UserViewDTO[];
+  posts:ExtendedPostDTO[];
 }
 export class UpdateUserInputDTO {
   @IsOptional()

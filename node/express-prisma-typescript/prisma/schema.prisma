@@ -16,23 +16,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid // Primary Key
 
-  username String  @unique // Unique constraint
-  name     String? @db.VarChar(35) // Limit display name to 35 characters
-  email    String  @unique // Unique constraint
-  password String
-  isPrivate Boolean @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  username  String     @unique // Unique constraint
+  name      String?    @db.VarChar(35) // Limit display name to 35 characters
+  email     String     @unique // Unique constraint
+  password  String
+  isPrivate Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   deletedAt DateTime? // Optional value
-  image     String? 
+  image     String?
   biography String?
   posts     Post[]
-  follows   Follow[] @relation(name: "follows")
-  followers Follow[] @relation(name: "followers")
+  follows   Follow[]   @relation(name: "follows")
+  followers Follow[]   @relation(name: "followers")
   reactions Reaction[]
   messages  Message[]
   chats     Chat[]
@@ -60,53 +59,60 @@ model Post {
   content  String   @db.VarChar(240) // Limit the content to 240 characters
   images   String[]
 
-  parent Post? @relation(name: "Relation",fields: [parentId], references: [id], onDelete: Cascade)
+  parent  Post?  @relation(name: "Relation", fields: [parentId], references: [id], onDelete: Cascade)
   comment Post[] @relation(name: "Relation")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Optional value
 
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
+  author   User       @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
   reaction Reaction[]
 }
 
-model Reaction{
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid 
+model Reaction {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
-  userId String @db.Uuid()
-  postId String @db.Uuid()
-  type ReactionType
+  userId String       @db.Uuid()
+  postId String       @db.Uuid()
+  type   ReactionType
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade) // One to many
-  post Post @relation(fields: [postId], references: [id],onDelete: Cascade) //One to many
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade) //One to many
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Optional value
 }
-model Chat{
-  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  type ChatType
+
+model Chat {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  type      ChatType
   users     User[] // in case of adding groups in a near future
 
-  messages  Message[]
-}
-model Message{
-  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid 
-  authorId String   @db.Uuid 
-  chatId String @db.Uuid()
-  content  String   @db.VarChar(240)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime    @updatedAt
-
-  chat Chat @relation(fields: [chatId],references: [id],onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  messages Message[]
 }
 
-enum ReactionType{
-  Like
-  Retweet
+model Message {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  senderId  String   @db.Uuid
+  chatId    String   @db.Uuid()
+  content   String   @db.VarChar(240)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
-enum ChatType{
+
+enum ReactionType {
+  LIKE
+  RETWEET
+}
+
+enum ChatType {
   Couple
   Group
 }

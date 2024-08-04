@@ -1,25 +1,63 @@
-import { PrismaClient } from '@prisma/client'
+import { Post, PrismaClient } from '@prisma/client'
 
 import { CursorPagination } from '@types'
 
 import { PostRepository } from '.'
-import { CreatePostInputDTO, PostDTO } from '../dto'
+import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
+import { UserViewDTO } from '@domains/user/dto'
+import { ReactionDTO } from '@domains/reaction/dto'
 
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
-
-  async create (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
+  async create (userId: string, data: CreatePostInputDTO): Promise<ExtendedPostDTO> {
     const post = await this.db.post.create({
       data: {
         authorId: userId,
         ...data
+      },
+      include:{
+        reaction: true,
+        author:true,
+        comment:{
+          include:{
+            author:true,
+            reaction: true,
+            comment:{
+              include:{
+                author: true
+              }
+            }
+          }
+        }
+
       }
     })
-    return new PostDTO(post)
+    const dto = new PostDTO(post);
+
+    const extendedPost = new ExtendedPostDTO({
+      ...dto,
+      author: new UserViewDTO(post.author),
+      comments: (post.comment.length != 0)?
+      post.comment.map(comment =>{
+        const dto = new PostDTO(comment)
+
+        return new ExtendedPostDTO({
+          ...dto,
+          author: new UserViewDTO(comment.author),
+          comments: [],
+          reactions: comment.reaction.map(reaction => new ReactionDTO(reaction))
+        })
+      })
+      :[],
+      reactions: post.reaction.map(reaction => new ReactionDTO(reaction))
+      
+    });
+
+    return extendedPost;
   }
 
-  async getAllByDatePaginated (filter: string[],options: CursorPagination): Promise<PostDTO[]> {
+  async getAllByDatePaginated (filter: string[],options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where:{AND:[{parentId: null},{OR:[{author:{isPrivate: false}},{ authorId: { in: filter } }]}]},
       cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
@@ -32,9 +70,48 @@ export class PostRepositoryImpl implements PostRepository {
         {
           id: 'asc'
         }
-      ]
+      ],
+      include:{
+        reaction: true,
+        author:true,
+        comment:{
+          include:{
+            author:true,
+            reaction: true,
+            comment:{
+              include:{
+                author: true
+              }
+            }
+          }
+        }
+
+      }
     })
-    return posts.map(post => new PostDTO(post))
+    return posts.map(post => {
+      const dto = new PostDTO(post);
+    
+      const extendedPost = new ExtendedPostDTO({
+        ...dto,
+        author: new UserViewDTO(post.author),
+        comments: (post.comment.length != 0)?
+        post.comment.map(comment =>{
+          const dto = new PostDTO(comment)
+  
+          return new ExtendedPostDTO({
+            ...dto,
+            author: new UserViewDTO(comment.author),
+            comments: [],
+            reactions: comment.reaction.map(reaction => new ReactionDTO(reaction))
+          })
+        })
+        :[],
+        reactions: post.reaction.map(reaction => new ReactionDTO(reaction))
+        
+      });
+  
+      return extendedPost;
+    })
   }
 
   async delete (postId: string): Promise<void> {
@@ -45,16 +122,52 @@ export class PostRepositoryImpl implements PostRepository {
     })
   }
 
-  async getById (postId: string): Promise<PostDTO | null> {
+  async getById (postId: string): Promise<ExtendedPostDTO | null> {
     const post = await this.db.post.findUnique({
       where: {
         id: postId
+      },
+      include:{
+        reaction: true,
+        author:true,
+        comment:{
+          include:{
+            author:true,
+            reaction: true,
+            comment: true,
+          }
+        }
+
       }
     })
-    return (post != null) ? new PostDTO(post) : null
+    if (post != null){
+      const postDto = new PostDTO(post);
+
+      const extendedPost = new ExtendedPostDTO({
+        ...postDto,
+        author: new UserViewDTO(post.author),
+        comments: (post.comment.length != 0)?
+        post.comment.map(comment =>{
+          const commentDto = new PostDTO(comment)
+          return new ExtendedPostDTO({
+            ...commentDto,
+            author: new UserViewDTO(comment.author),
+            comments: [],
+            reactions: []
+          })
+        })
+        :[],
+        reactions: post.reaction.map(reaction => new ReactionDTO(reaction))
+        
+      });
+  
+      return extendedPost;
+    }else{
+      return null
+    } 
   }
 
-  async getByAuthorId (authorId: string): Promise<PostDTO[]> {
+  async getByAuthorId (authorId: string): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
         authorId: authorId,
@@ -62,27 +175,49 @@ export class PostRepositoryImpl implements PostRepository {
         author:{
           isPrivate: false
         }
+      },
+      include:{
+        reaction: true,
+        author:true,
+        comment:{
+          include:{
+            author:true,
+            reaction: true,
+            comment:{
+              include:{
+                author: true
+              }
+            }
+          }
+        }
+
       }
     })
-    return posts.map(post => new PostDTO(post))
+    return posts.map(post => {
+      const dto = new PostDTO(post);
+    
+      const extendedPost = new ExtendedPostDTO({
+        ...dto,
+        author: new UserViewDTO(post.author),
+        comments: (post.comment.length != 0)?
+        post.comment.map(comment =>{
+          const dto = new PostDTO(comment)
+  
+          return new ExtendedPostDTO({
+            ...dto,
+            author: new UserViewDTO(comment.author),
+            comments: [],
+            reactions: comment.reaction.map(reaction => new ReactionDTO(reaction))
+          })
+        })
+        :[],
+        reactions: post.reaction.map(reaction => new ReactionDTO(reaction))
+        
+      });
+  
+      return extendedPost;
+    })
   }
-  async getCountByUserId(userId: string): Promise<number>{
-    const count = await this.db.post.count({
-        where: {
-            id: userId
-        }
-    });
 
-    return count;
-}
-async getCountByPostId(postId: string): Promise<number>{
-    const count = await this.db.post.count({
-        where: {
-          parentId: postId
-        }
-    });
-
-    return count;
-}
 }
 

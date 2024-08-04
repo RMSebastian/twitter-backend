@@ -9,6 +9,7 @@ const authService = new AuthServiceImpl(userRepository);
 
 const signUpData = {
     email: "test@gmail.com",
+    name: "Name",
     username: "Username",
     password: "PasswordN#1",
 };
@@ -27,7 +28,8 @@ const extendedUser = new ExtendedUserDTO({
     image: null,
     name: null,
     password: "PasswordN#1",
-    username: "Username"
+    username: "Username",
+    isPrivate: false
 })
 
 describe("AuthServiceImpl",()=>{

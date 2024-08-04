@@ -5,11 +5,14 @@ import { UserRepository } from '../repository'
 import { UserService } from './user.service'
 import { FollowerRepository } from '@domains/follower'
 import { S3Service } from '@aws/service'
+import { PostService } from '@domains/post/service'
+import { ExtendedPostDTO } from '@domains/post/dto'
 
 export class UserServiceImpl implements UserService {
   constructor (
     private readonly userRepository: UserRepository,
     private readonly followRepository: FollowerRepository,
+    private readonly postService: PostService,
     private readonly s3Client: S3Service
   ) {}
 
@@ -22,10 +25,26 @@ export class UserServiceImpl implements UserService {
     })();
     const userWithUrl = await this.getUrl(user);
     const userView = new UserViewDTO(userWithUrl);
+    const followedUsers: UserDTO[] = await this.followRepository.getFollowedUsers(userWithUrl.id);
+    const followerUsers: UserDTO[] = await this.followRepository.getFollowerUsers(userWithUrl.id);
+    const posts: ExtendedPostDTO[] = await this.postService.getPostsByAuthor(userWithUrl.id,userWithUrl.id);
+
+    if(followedUsers && followedUsers.length !=0){
+      followedUsers.map(fdu => new UserViewDTO(fdu))
+    }
+
+    if(followerUsers && followerUsers.length !=0){
+      followerUsers.map(fru => new UserViewDTO(fru))
+    }
+    
     const extendedUser = new ExtendedUserViewDTO({
       ...userView,
-      follow: bool
+      followers: followerUsers,
+      following: followedUsers,
+      posts: posts
     });
+
+
     return extendedUser;
   }
   async updateUser(userId: string, data: UpdateUserInputDTO): Promise<UserDTO>{

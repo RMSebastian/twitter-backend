@@ -11,8 +11,7 @@ export class UserRepositoryImpl implements UserRepository {
  
     const user = await this.db.user.create({
       data:{
-        ...data,
-        name: data.username
+        ...data
       }
     })
 

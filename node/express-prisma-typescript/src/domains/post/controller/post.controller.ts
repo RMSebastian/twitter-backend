@@ -13,17 +13,23 @@ import { FollowerRepositoryImpl } from '@domains/follower/repository'
 import { ReactionRepositoryImpl } from '@domains/reaction'
 import { S3ServiceImpl } from '@aws/service'
 import { s3Client } from '@utils/s3client'
+import { CommentService, CommentServiceImpl } from '@domains/comment/service'
+import { CommentRepositoryImpl } from '@domains/comment/repository'
 
 export const postRouter = Router()
 
 // Use dependency injection
+const followRepository = new FollowerRepositoryImpl(db);
+const userRepository = new UserRepositoryImpl(db);
+const s3client = new S3ServiceImpl(s3Client);
+
 const service: PostService = new PostServiceImpl(
-new PostRepositoryImpl(db),
-new FollowerRepositoryImpl(db),
-new UserRepositoryImpl(db),
-new ReactionRepositoryImpl(db),
-new S3ServiceImpl(s3Client)
-);
+  new PostRepositoryImpl(db),
+  followRepository,
+  userRepository,
+  s3client
+  );
+// Use d
 
 
 /**
@@ -258,6 +264,52 @@ postRouter.delete('/:postId', async (req: Request, res: Response) => {
  * @swagger
  * components:
  *   schemas:
+ *     PostDTO:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The unique identifier of the post
+ *         authorId:
+ *           type: string
+ *           description: The ID of the author of the post
+ *         content:
+ *           type: string
+ *           description: The content of the post
+ *         images:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: List of image URLs associated with the post
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date and time when the post was created
+ *         parentId:
+ *           type: string
+ *           nullable: true
+ *           description: The ID of the parent post if this is a reply
+ *     UserDTO:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The unique identifier of the user
+ *         username:
+ *           type: string
+ *           description: The username of the user
+ *         image:
+ *           type: string
+ *           description: URL to the user's profile image
+ *     ReactionDTO:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The unique identifier of the reaction
+ *         type:
+ *           type: string
+ *           description: Type of the reaction (like, love, etc.)
  *     ExtendedPostDTO:
  *       allOf:
  *         - $ref: '#/components/schemas/PostDTO'
@@ -266,17 +318,17 @@ postRouter.delete('/:postId', async (req: Request, res: Response) => {
  *             author:
  *               $ref: '#/components/schemas/UserDTO'
  *               description: Post author details
- *             qtyComments:
- *               type: integer
- *               description: Quantity of comments on the post
- *             qtyLikes:
- *               type: integer
- *               description: Quantity of likes on the post
- *             qtyRetweets:
- *               type: integer
- *               description: Quantity of retweets of the post
+ *             reactions:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ReactionDTO'
+ *               description: List of reactions to the post
+ *             comments:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ExtendedPostDTO'
+ *               description: List of comments on the post
  */
-/**  
 /**
  * @swagger
  * components:

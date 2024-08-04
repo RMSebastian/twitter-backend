@@ -15,7 +15,8 @@ const userDto = new UserDTO({
     createdAt: new Date(),
     image: "UserPicture.jpg",
     name: null,
-    username: "Username"
+    username: "Username",
+    isPrivate: false
 },)
 const createRoomData= {
     otherUserId: "OtherUserId"
@@ -30,7 +31,8 @@ const otherUserDto = new UserDTO({
     createdAt: new Date(),
     image: "OtherUserPicture.jpg",
     name: null,
-    username: "OtherUsername"
+    username: "OtherUsername",
+    isPrivate: false
 },)
 const messageDto = new MessageDTO({
     chatId: "ChatId",
@@ -43,13 +45,13 @@ const newChatDto = new ChatDTO({
     id: "ChatId",
     createdAt: new Date(),
     messages: [],
-    usersId:["UserId","OtherUserId"]
+    users:["UserId","OtherUserId"]
 })
 const chatDto = new ChatDTO({
     id: "ChatId",
     createdAt: new Date(),
     messages: [messageDto],
-    usersId:["UserId","OtherUserId"]
+    users:["UserId","OtherUserId"]
 })
 const socketService = new SocketServiceImpl(
     followRepository,

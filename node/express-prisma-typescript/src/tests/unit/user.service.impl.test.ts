@@ -1,18 +1,31 @@
 import { S3ServiceImplMock } from "@aws/service";
+import { CommentRepositoryImplMock } from "@domains/comment/repository";
+import { CommentServiceImpl } from "@domains/comment/service";
 import { FollowerRepositoryImplMock } from "@domains/follower";
 import { FollowDTO } from "@domains/follower/dto";
+import { PostRepositoryImplMock } from "@domains/post/repository";
+import { PostServiceImpl } from "@domains/post/service";
+import { ReactionRepositoryImplMock } from "@domains/reaction";
 import { ExtendedUserViewDTO, UserDTO, UserViewDTO } from "@domains/user/dto";
 import { UserRepositoryImplMock } from "@domains/user/repository";
 import { UserServiceImpl } from "@domains/user/service";
 import { OffsetPagination } from "@types";
 
 const userRepository = new UserRepositoryImplMock();
-const followRepository = new FollowerRepositoryImplMock();
 const s3client = new S3ServiceImplMock();
+const postRepository = new PostRepositoryImplMock();
+const followRepository = new FollowerRepositoryImplMock();
 
+const postService = new PostServiceImpl(
+    postRepository,
+    followRepository,
+    userRepository,
+    s3client
+);
 const userService = new UserServiceImpl(
     userRepository,
     followRepository,
+    postService,
     s3client
 );
 const options: OffsetPagination ={
@@ -25,7 +38,8 @@ const otherUserDto = new UserDTO({
     createdAt: new Date(),
     image: "UserPicture.jpg",
     name: null,
-    username: "Username"
+    username: "Username",
+    isPrivate: false,
 },)
 const followDto = new FollowDTO({
     id: "FollowId",

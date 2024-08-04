@@ -36,7 +36,8 @@ const otherUserDto = new UserDTO({
 },)
 const messageDto = new MessageDTO({
     chatId: "ChatId",
-    authorId: "UserId",
+    senderId: "UserId",
+    sender: userDto,
     content:"Testing content",
     createdAt: new Date(),
     id:"MessageId"
@@ -45,13 +46,13 @@ const newChatDto = new ChatDTO({
     id: "ChatId",
     createdAt: new Date(),
     messages: [],
-    users:["UserId","OtherUserId"]
+    users:[userDto,otherUserDto]
 })
 const chatDto = new ChatDTO({
     id: "ChatId",
     createdAt: new Date(),
     messages: [messageDto],
-    users:["UserId","OtherUserId"]
+    users:[userDto,otherUserDto]
 })
 const socketService = new SocketServiceImpl(
     followRepository,

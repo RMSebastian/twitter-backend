@@ -56,6 +56,7 @@ const service: CommentService = new CommentServiceImpl(
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
+
   commentRouter.get('/me', async (req: Request, res: Response) => {
     const { userId } = res.locals.context
     
@@ -65,6 +66,43 @@ const service: CommentService = new CommentServiceImpl(
   
     return res.status(HttpStatus.OK).json(posts)
   })
+
+  /**
+ * @swagger
+ * /api/comment/{postId}:
+ *   get:
+ *     security:
+ *         - BearerAuth: []
+ *     summary: Get comment by id
+ *     tags: [comment]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The post id
+ *     responses:
+ *       2XX:
+ *         description: Got post by id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ExtendedPostDTO'
+ *       4XX:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+  commentRouter.get('/:postId', async (req: Request, res: Response) => {
+  const { postId } = req.params
+
+  const post = await service.getComment(postId)
+
+  return res.status(HttpStatus.OK).json(post)
+})
 /**
  * @swagger
  * tags:

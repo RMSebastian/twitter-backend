@@ -23,6 +23,14 @@ export class CommentServiceImpl implements CommentService{
         if (comment.authorId !== userId) throw new ForbiddenException()
         await this.commentRepository.delete(postId)
     }
+    async getComment (postId: string): Promise<ExtendedPostDTO> {
+    
+      const post = await this.commentRepository.getById(postId)
+      if (!post) throw new NotFoundException('post');
+      const postWithUrl = await this.getUrl(post);
+      return postWithUrl;
+    }
+  
     async getLatestComments(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
         const comments = await this.commentRepository.getAllById(userId ,options)
         if(comments){

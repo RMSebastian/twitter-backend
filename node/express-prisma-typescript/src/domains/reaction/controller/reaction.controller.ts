@@ -58,39 +58,31 @@ reactionRouter.post("/:postId", BodyValidation(CreateReactionInputDTO),async (re
 });
 /**
  * @swagger
- * /api/reaction/{postId}:
+ * /api/reaction/{reactionId}:
  *   delete:
  *     security:
  *         - BearerAuth: []
  *     summary: Remove the reaction from post by postId
  *     tags: [reaction]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateReactionInputDTO'
  *     parameters:
  *       - in: path
- *         name: postId
+ *         name: reactionId
  *         schema:
  *           type: string
  *         required: true
- *         description: The post id
+ *         description: The unique reaction id
  *     responses:
  *       2XX:
  *         description: The reaction was deleted
  *       4XX:
  *         description: The reaction was not found
  */
-reactionRouter.delete("/:postId", BodyValidation(CreateReactionInputDTO),async (req: Request, res: Response)=>{
-    const { userId } = res.locals.context;
-    const { postId } = req.params;
-    const data = req.body;
+reactionRouter.delete("/:reactionId",async (req: Request, res: Response)=>{
+    const { reactionId } = req.params;
   
-    await service.deleteReaction(userId,postId,data);
+    await service.deleteReaction(reactionId);
 
-    return res.status(HttpStatus.OK).send(`Deleted reaction ${postId}`)
+    return res.status(HttpStatus.OK).send(`Deleted reaction ${reactionId}`)
 });
 /**
  * @swagger

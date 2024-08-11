@@ -4,6 +4,7 @@ import { CreateReactionInputDTO, ReactionDTO } from "../dto";
 
 export class ReactionRepositoryImpl implements ReactionRepository{
     constructor(private readonly db: PrismaClient){}
+    
 
     async create(userId: string, postId: string, data: CreateReactionInputDTO): Promise<ReactionDTO> {
         const reaction = await this.db.reaction.create({
@@ -53,6 +54,14 @@ export class ReactionRepositoryImpl implements ReactionRepository{
         });
     
         return count;
+    }
+    async getReactionById(reactionId: string): Promise<ReactionDTO | null> {
+        const reaction: ReactionDTO | null = await this.db.reaction.findUnique({
+            where:{
+                id: reactionId
+            }
+        })
+        return reaction
     }
     async getCountByPostId(postId: string, filter: null | ReactionType): Promise<number>{
         const count = await this.db.reaction.count({

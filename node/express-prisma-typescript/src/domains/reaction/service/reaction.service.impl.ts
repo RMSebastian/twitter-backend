@@ -12,10 +12,10 @@ export class ReactionServiceImpl implements ReactionService{
         if (existingReaction) throw new ConflictException('REACTION_ALREADY_EXIST')
         return await this.reactionRepository.create(userId,postId, data);
     }
-    async deleteReaction(userId: string, postId: string, data: CreateReactionInputDTO): Promise<void> {
-        const reactionId = await this.reactionRepository.getReactionId(userId,postId,data);
-        if(!reactionId) throw new NotFoundException('reaction');
-        await this.reactionRepository.delete(reactionId);
+    async deleteReaction(reactionId: string): Promise<void> {
+        const reaction = await this.reactionRepository.getReactionById(reactionId);
+        if(!reaction) throw new NotFoundException('follow')
+        await this.reactionRepository.delete(reaction.id);
     }
     async getReactionsWithFilter(userId: string, filter: ReactionType | null): Promise<ReactionDTO[]> {
         return await this.reactionRepository.getAllByUserId(userId,filter);

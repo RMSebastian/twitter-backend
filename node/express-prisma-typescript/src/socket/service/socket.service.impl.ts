@@ -2,7 +2,7 @@ import { SocketService } from ".";
 import { FollowerRepository } from "@domains/follower";
 import { ChatRepository } from "@socket/repository";
 import { ChatDTO, CreateMessageInputDTO, CreateRoomInputDTO, MessageDTO } from "@socket/dto";
-import { UserDTO } from "@domains/user/dto";
+import { UserDTO, UserViewDTO } from "@domains/user/dto";
 import { UserRepository } from "@domains/user/repository";
 
 export class SocketServiceImpl implements SocketService{
@@ -23,7 +23,7 @@ export class SocketServiceImpl implements SocketService{
         const chat = await this.socketRepository.createChat(userId,data.otherUserId);
         return chat
     }
-    async recoverChats(userId: string): Promise<UserDTO[]> {
+    async recoverChats(userId: string): Promise<UserViewDTO[]> {
         return await this.followRepository.getRelationshipsByUserId(userId);
     }
     async createMessage(userId: string,data: CreateMessageInputDTO): Promise<MessageDTO | null> {     

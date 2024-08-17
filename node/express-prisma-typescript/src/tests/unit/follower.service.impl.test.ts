@@ -25,8 +25,6 @@ describe("FollowerServiceImpl", () => {
         expect(followerRepository.getFollowId).toHaveBeenCalledWith(followDto.followerId, followDto.followedId);
         expect(followerRepository.create).toHaveBeenCalledWith(followDto.followerId, followDto.followedId);
         expect(follow).toBeDefined();
-        expect(follow.followerId).toBe(followDto.followerId);
-        expect(follow.followedId).toBe(followDto.followedId);
     });
 
     test("follow_conflict", async () => {

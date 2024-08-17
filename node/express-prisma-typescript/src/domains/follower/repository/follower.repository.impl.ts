@@ -6,15 +6,18 @@ import { UserDTO, UserViewDTO } from '@domains/user/dto';
 export class FollowerRepositoryImpl implements FollowerRepository {
   constructor(private readonly db: PrismaClient) {}
 
-  async create(followerId: string, followedId: string): Promise<FollowDTO> {
+  async create(followerId: string, followedId: string): Promise<UserViewDTO> {
     const follow = await this.db.follow.create({
       data: {
         followerId: followerId,
         followedId: followedId,
       },
+      include: {
+        followed: true,
+      },
     });
 
-    return new FollowDTO(follow);
+    return new UserViewDTO(follow.followed);
   }
   async delete(followId: string): Promise<void> {
     await this.db.follow.delete({

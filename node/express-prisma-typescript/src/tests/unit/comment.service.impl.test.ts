@@ -40,7 +40,7 @@ const postDto: ExtendedPostDTO = {
     images: ["test.jpg"],
     createdAt: new Date(),
     author: userDto,
-    comments: [],
+    comments: 0,
     reactions: []
 };
 
@@ -52,7 +52,7 @@ const commentDto: ExtendedPostDTO = {
     images: ["CommentPicture.jpg"],
     createdAt: new Date(),
     author: userDto,
-    comments: [],
+    comments: 0,
     reactions: []
 };
 

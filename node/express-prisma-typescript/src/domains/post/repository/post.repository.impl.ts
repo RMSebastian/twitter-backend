@@ -37,19 +37,7 @@ export class PostRepositoryImpl implements PostRepository {
     const extendedPost = new ExtendedPostDTO({
       ...dto,
       author: new UserViewDTO(post.author),
-      comments:
-        post.comment.length != 0
-          ? post.comment.map((comment) => {
-              const dto = new PostDTO(comment);
-
-              return new ExtendedPostDTO({
-                ...dto,
-                author: new UserViewDTO(comment.author),
-                comments: [],
-                reactions: comment.reaction.map((reaction) => new ReactionDTO(reaction)),
-              });
-            })
-          : [],
+      comments: 0,
       reactions: post.reaction.map((reaction) => new ReactionDTO(reaction)),
     });
 
@@ -82,11 +70,7 @@ export class PostRepositoryImpl implements PostRepository {
           include: {
             author: true,
             reaction: true,
-            comment: {
-              include: {
-                author: true,
-              },
-            },
+            comment: true,
           },
         },
       },
@@ -97,19 +81,7 @@ export class PostRepositoryImpl implements PostRepository {
       const extendedPost = new ExtendedPostDTO({
         ...dto,
         author: new UserViewDTO(post.author),
-        comments:
-          post.comment.length != 0
-            ? post.comment.map((comment) => {
-                const dto = new PostDTO(comment);
-
-                return new ExtendedPostDTO({
-                  ...dto,
-                  author: new UserViewDTO(comment.author),
-                  comments: [],
-                  reactions: comment.reaction.map((reaction) => new ReactionDTO(reaction)),
-                });
-              })
-            : [],
+        comments: post.comment.length,
         reactions: post.reaction.map((reaction) => new ReactionDTO(reaction)),
       });
 
@@ -141,11 +113,7 @@ export class PostRepositoryImpl implements PostRepository {
           include: {
             author: true,
             reaction: true,
-            comment: {
-              include: {
-                author: true,
-              },
-            },
+            comment: true,
           },
         },
       },
@@ -156,19 +124,7 @@ export class PostRepositoryImpl implements PostRepository {
       const extendedPost = new ExtendedPostDTO({
         ...dto,
         author: new UserViewDTO(post.author),
-        comments:
-          post.comment.length != 0
-            ? post.comment.map((comment) => {
-                const dto = new PostDTO(comment);
-
-                return new ExtendedPostDTO({
-                  ...dto,
-                  author: new UserViewDTO(comment.author),
-                  comments: [],
-                  reactions: comment.reaction.map((reaction) => new ReactionDTO(reaction)),
-                });
-              })
-            : [],
+        comments: post.comment.length,
         reactions: post.reaction.map((reaction) => new ReactionDTO(reaction)),
       });
 
@@ -207,18 +163,7 @@ export class PostRepositoryImpl implements PostRepository {
       const extendedPost = new ExtendedPostDTO({
         ...postDto,
         author: new UserViewDTO(post.author),
-        comments:
-          post.comment.length != 0
-            ? post.comment.map((comment) => {
-                const commentDto = new PostDTO(comment);
-                return new ExtendedPostDTO({
-                  ...commentDto,
-                  author: new UserViewDTO(comment.author),
-                  comments: [],
-                  reactions: [],
-                });
-              })
-            : [],
+        comments: post.comment.length,
         reactions: post.reaction.map((reaction) => new ReactionDTO(reaction)),
       });
 
@@ -244,11 +189,7 @@ export class PostRepositoryImpl implements PostRepository {
           include: {
             author: true,
             reaction: true,
-            comment: {
-              include: {
-                author: true,
-              },
-            },
+            comment: true,
           },
         },
       },
@@ -259,19 +200,7 @@ export class PostRepositoryImpl implements PostRepository {
       const extendedPost = new ExtendedPostDTO({
         ...dto,
         author: new UserViewDTO(post.author),
-        comments:
-          post.comment.length != 0
-            ? post.comment.map((comment) => {
-                const dto = new PostDTO(comment);
-
-                return new ExtendedPostDTO({
-                  ...dto,
-                  author: new UserViewDTO(comment.author),
-                  comments: [],
-                  reactions: comment.reaction.map((reaction) => new ReactionDTO(reaction)),
-                });
-              })
-            : [],
+        comments: post.comment.length,
         reactions: post.reaction.map((reaction) => new ReactionDTO(reaction)),
       });
 

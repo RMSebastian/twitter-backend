@@ -45,5 +45,5 @@ export class ExtendedPostDTO extends PostDTO {
 
   author!: UserViewDTO
   reactions!: ReactionDTO[]
-  comments!: ExtendedPostDTO[]
+  comments!: number
 }

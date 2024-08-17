@@ -84,43 +84,6 @@ postRouter.get('/', async (req: Request, res: Response) => {
 });
 /**
  * @swagger
- * /api/post/{postId}:
- *   get:
- *     security:
- *         - BearerAuth: []
- *     summary: Get post by id
- *     tags: [post]
- *     parameters:
- *       - in: path
- *         name: postId
- *         schema:
- *           type: string
- *         required: true
- *         description: The post id
- *     responses:
- *       2XX:
- *         description: Got post by id
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ExtendedPostDTO'
- *       4XX:
- *         description: Error with the request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-postRouter.get('/:postId', async (req: Request, res: Response) => {
-  const { userId } = res.locals.context;
-  const { postId } = req.params;
-
-  const post = await service.getPost(userId, postId);
-
-  return res.status(HttpStatus.OK).json(post);
-});
-/**
- * @swagger
  * tags:
  *  name: post
  *  description: post endpoints
@@ -169,6 +132,43 @@ postRouter.get('/follow', async (req: Request, res: Response) => {
   const posts = await service.getFollowPosts(userId, { limit: Number(limit), before, after });
 
   return res.status(HttpStatus.OK).json(posts);
+});
+/**
+ * @swagger
+ * /api/post/{postId}:
+ *   get:
+ *     security:
+ *         - BearerAuth: []
+ *     summary: Get post by id
+ *     tags: [post]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The post id
+ *     responses:
+ *       2XX:
+ *         description: Got post by id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ExtendedPostDTO'
+ *       4XX:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+postRouter.get('/:postId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context;
+  const { postId } = req.params;
+
+  const post = await service.getPost(userId, postId);
+
+  return res.status(HttpStatus.OK).json(post);
 });
 /**
  * @swagger

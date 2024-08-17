@@ -162,6 +162,57 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
 })
 /**
  * @swagger
+ * tags:
+ *  name: post
+ *  description: post endpoints
+ * /api/post/follow:
+ *   get:
+ *     security:
+ *         - BearerAuth: []
+ *     summary: Get posts from users follow by the current user
+ *     tags: [post]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: string
+ *         description: The amount of records to return
+ *       - in: query
+ *         name: before
+ *         schema:
+ *           type: string
+ *         description: The id of the record after the last returned record
+ *       - in: query
+ *         name: after
+ *         schema:
+ *           type: string
+ *         description: The id of the record before the first returned record
+ *     responses:
+ *       2XX:
+ *         description: Got posts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ExtendedPostDTO'
+ *       4XX:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+postRouter.get('/follow', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { limit, before, after } = req.query as Record<string, string>
+
+  const posts = await service.getLatestPosts(userId, { limit: Number(limit), before, after })
+
+  return res.status(HttpStatus.OK).json(posts)
+})
+/**
+ * @swagger
  * /api/post/:
  *   post:
  *     security:

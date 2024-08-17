@@ -86,7 +86,7 @@ describe("UserServiceImpl",()=>{
 
         const users = await userService.getUserRecommendations("UserId", options);
         
-        expect(userRepository.getRecommendedUsersPaginated).toHaveBeenCalledWith(options)
+        expect(userRepository.getRecommendedUsersPaginated).toHaveBeenCalledWith("UserId",options)
         expect(s3client.GetObjectFromS3).toHaveBeenCalledTimes(1)
         expect(Array.isArray(users)).toBe(true);
         users.forEach(user => {expect(user).toBeInstanceOf(UserViewDTO);});

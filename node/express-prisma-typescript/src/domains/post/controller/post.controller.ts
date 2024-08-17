@@ -121,46 +121,6 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
 });
 /**
  * @swagger
- * /api/post/by_user/{userId}:
- *   get:
- *     security:
- *         - BearerAuth: []
- *     summary: Get posts by user
- *     description: Retrieve posts created by a specific user.
- *     tags: [post]
- *     parameters:
- *       - in: path
- *         name: userId
- *         schema:
- *           type: string
- *         required: true
- *         description: ID of the user whose posts are to be retrieved.
- *     responses:
- *       2XX:
- *         description: A list of posts created by the specified user.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/ExtendedPostDTO'
- *       4XX:
- *         description: Error with the request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
-postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
-  const { userId } = res.locals.context;
-  const { userId: authorId } = req.params;
-
-  const posts = await service.getPostsByAuthor(userId, authorId);
-
-  return res.status(HttpStatus.OK).json(posts);
-});
-/**
- * @swagger
  * tags:
  *  name: post
  *  description: post endpoints
@@ -210,6 +170,47 @@ postRouter.get('/follow', async (req: Request, res: Response) => {
 
   return res.status(HttpStatus.OK).json(posts);
 });
+/**
+ * @swagger
+ * /api/post/by_user/{userId}:
+ *   get:
+ *     security:
+ *         - BearerAuth: []
+ *     summary: Get posts by user
+ *     description: Retrieve posts created by a specific user.
+ *     tags: [post]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the user whose posts are to be retrieved.
+ *     responses:
+ *       2XX:
+ *         description: A list of posts created by the specified user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ExtendedPostDTO'
+ *       4XX:
+ *         description: Error with the request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context;
+  const { userId: authorId } = req.params;
+
+  const posts = await service.getPostsByAuthor(userId, authorId);
+
+  return res.status(HttpStatus.OK).json(posts);
+});
+
 /**
  * @swagger
  * /api/post/:

@@ -48,7 +48,7 @@ declare module 'socket.io' {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: process.env.REACT_FE_DEV_PORT,
     methods: ['GET', 'POST', 'DELETE'],
   },
 });
